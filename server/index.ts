@@ -8,6 +8,7 @@ import * as admin from "firebase-admin";
 import cors from "@koa/cors";
 import koaBody from "koa-body";
 import { TransactionStatementEvent } from "./model/transactionStatementEvent";
+import Router from "koa-router";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -24,6 +25,9 @@ admin.initializeApp();
 
 const auth = admin.auth();
 const app = new Koa();
+const router = new Router({
+  prefix: "/api",
+});
 
 app.use(cors());
 app.use(koaBody());
@@ -44,33 +48,30 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-app.use(async (ctx, next) => {
-  ctx.status = 200;
+router.post("/transactionStatementEvents", async (ctx) => {
+  const input = ctx.request.body as TransactionStatementEvent[];
+  await transactionStatementEventRepository.save(
+    input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
+  );
+});
+router.get("/transactionStatementEvents", async (ctx) => {
+  const result = await transactionStatementEventRepository.find();
+  ctx.body = result.map((r) => r.toTransactionStatementEvent());
+});
 
-  if (ctx.request.path.startsWith("/api")) {
-    if (
-      ctx.request.method === "POST" &&
-      ctx.request.path === "/api/transactionStatementEvents"
-    ) {
-      const input = ctx.request.body as TransactionStatementEvent[];
-      await transactionStatementEventRepository.save(
-        input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
-      );
-    } else if (
-      ctx.request.method === "GET" &&
-      ctx.request.path === "/api/transactionStatementEvents"
-    ) {
-      const output = await transactionStatementEventRepository.find();
-      ctx.body = output.map((r) => r.toTransactionStatementEvent());
-    } else {
-      ctx.throw(404, "Path Not found");
-    }
+app.use(async (ctx, next) => {
+  if (
+    !ctx.request.path.startsWith("/api") &&
+    process.env.NODE_ENV === "production"
+  ) {
+    return serve(path.resolve(__dirname, "web"))(ctx, next);
   } else {
-    if (process.env.NODE_ENV === "production") {
-      return serve(path.resolve(__dirname, "web"))(ctx, next);
-    }
+    next();
   }
 });
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 const main = async () => {
   await dataSource.initialize();
