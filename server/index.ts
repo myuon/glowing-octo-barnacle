@@ -30,8 +30,6 @@ const router = new Router({
 });
 
 app.use(cors());
-app.use(koaBody());
-
 app.use(async (ctx, next) => {
   const token = ctx.request.header.authorization?.split("Bearer ")?.[1];
 
@@ -47,8 +45,7 @@ app.use(async (ctx, next) => {
 
   await next();
 });
-
-router.post("/transactionStatementEvents", async (ctx) => {
+router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
   const input = ctx.request.body as TransactionStatementEvent[];
   await transactionStatementEventRepository.save(
     input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
