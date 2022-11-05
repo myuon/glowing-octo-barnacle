@@ -2,9 +2,8 @@ import { css } from "@emotion/react";
 import { useRef, useState } from "react";
 import Papa from "papaparse";
 import Encoding from "encoding-japanese";
-import { sha256 } from "../helper/sha256";
+import { SHA256 } from "../helper/sha256";
 import dayjs from "dayjs";
-import { sequential } from "../helper/promise";
 import { useAuth } from "../helper/auth";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -16,14 +15,13 @@ export interface ImportedTransaction {
   type: string;
   amount: number;
   description: string;
-  createdAt: number;
   transactionDate: string;
 }
 
-const guessRecordFromHeader = async (
+const guessRecordFromHeader = (
   header: string[],
   row: Record<string, string>
-): Promise<ImportedTransaction | undefined> => {
+): ImportedTransaction | undefined => {
   if (
     JSON.stringify(header) ===
     JSON.stringify([
@@ -51,9 +49,8 @@ const guessRecordFromHeader = async (
       type: amount > 0 ? "income" : "expense",
       amount: Math.abs(amount),
       description: row["ご利用店名（海外ご利用店名／海外都市名）"],
-      createdAt: dayjs().unix(),
       transactionDate: dayjs(
-        row["ご利用日"].replace("年", "-").replace("月", "-").replace("日", "")
+        row["お支払日"].replace("年", "-").replace("月", "-").replace("日", "")
       ).format("YYYY-MM-DD"),
     };
   }
@@ -61,45 +58,43 @@ const guessRecordFromHeader = async (
   return undefined;
 };
 
-const addUniqueKeys = async (rows: ImportedTransaction[]) => {
+const addUniqueKeys = (rows: ImportedTransaction[]) => {
   const dateKey: { [key: string]: Set<string> } = {};
-  const result = await sequential(
-    rows.map((row) => async () => {
-      if (!dateKey[row.transactionDate]) {
-        dateKey[row.transactionDate] = new Set();
-      }
+  const result = rows.map((row) => {
+    if (!dateKey[row.transactionDate]) {
+      dateKey[row.transactionDate] = new Set();
+    }
 
-      const uniqueKeyCandidate = await sha256(JSON.stringify(row));
-      if (!dateKey[row.transactionDate].has(uniqueKeyCandidate)) {
-        dateKey[row.transactionDate].add(uniqueKeyCandidate);
-        console.log(row.transactionDate, uniqueKeyCandidate, row);
+    const uniqueKeyCandidate = SHA256(JSON.stringify(row));
+    if (!dateKey[row.transactionDate].has(uniqueKeyCandidate)) {
+      dateKey[row.transactionDate].add(uniqueKeyCandidate);
+      console.log(row.transactionDate, uniqueKeyCandidate, row);
 
-        return {
-          ...row,
-          uniqueKey: uniqueKeyCandidate,
-        };
-      }
+      return {
+        ...row,
+        uniqueKey: uniqueKeyCandidate,
+      };
+    }
 
-      const key = await sha256(
-        `${JSON.stringify(row)}#${dateKey[row.transactionDate].size}`
+    const key = SHA256(
+      `${JSON.stringify(row)}#${dateKey[row.transactionDate].size}`
+    );
+    if (!dateKey[row.transactionDate].has(key)) {
+      dateKey[row.transactionDate].add(key);
+      console.log(row.transactionDate, key, row);
+
+      return {
+        ...row,
+        uniqueKey: key,
+      };
+    } else {
+      console.log(
+        `${JSON.stringify(row)}#${dateKey[row.transactionDate].size}`,
+        key
       );
-      if (!dateKey[row.transactionDate].has(key)) {
-        dateKey[row.transactionDate].add(key);
-        console.log(row.transactionDate, key, row);
-
-        return {
-          ...row,
-          uniqueKey: key,
-        };
-      } else {
-        console.log(
-          `${JSON.stringify(row)}#${dateKey[row.transactionDate].size}`,
-          key
-        );
-        throw new Error("Unique key collision");
-      }
-    })
-  );
+      throw new Error("Unique key collision");
+    }
+  });
 
   return result;
 };
@@ -198,12 +193,10 @@ export const IndexPage = () => {
       <button
         disabled={data.length === 0}
         onClick={async () => {
-          const records = (
-            await Promise.all(
-              data.map((row) => guessRecordFromHeader(header, row))
-            )
-          ).filter((t): t is ImportedTransaction => Boolean(t));
-          const input = await addUniqueKeys(records);
+          const records = data
+            .map((row) => guessRecordFromHeader(header, row))
+            .filter((t): t is ImportedTransaction => Boolean(t));
+          const input = addUniqueKeys(records);
           console.log(input);
 
           const resp = await fetch("/api/transactionStatementEvents", {

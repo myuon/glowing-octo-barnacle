@@ -10,6 +10,7 @@ import koaBody from "koa-body";
 import { TransactionStatementEvent } from "./model/transactionStatementEvent";
 import Router from "koa-router";
 import adminKey from "../.secrets/firebase-admin-key.json";
+import dayjs from "dayjs";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -50,7 +51,10 @@ app.use(async (ctx, next) => {
 });
 
 router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
-  const input = ctx.request.body as TransactionStatementEvent[];
+  const input = (ctx.request.body as TransactionStatementEvent[]).map((r) => ({
+    ...r,
+    createdAt: dayjs().unix(),
+  }));
   await transactionStatementEventRepository.save(
     input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
   );

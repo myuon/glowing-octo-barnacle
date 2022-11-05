@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
+    "crypto-js": "^4.1.1",
     "dayjs": "^1.11.6",
     "encoding-japanese": "^2.0.0",
     "firebase": "^9.13.0",
@@ -22,6 +23,7 @@
     "react-router-dom": "^6.4.3"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
     "@types/encoding-japanese": "^2.0.1",
     "@types/papaparse": "^5.3.5",
     "@types/react": "^18.0.17",

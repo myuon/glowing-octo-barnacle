@@ -8,5 +8,6 @@ export interface TransactionStatementEvent {
   type: TransactionStatementType;
   amount: number;
   description: string;
+  transactionDate: string;
   createdAt: number;
 }

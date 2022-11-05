@@ -3,6 +3,7 @@ import {
   TransactionStatementEvent,
   TransactionStatementType,
 } from "../model/transactionStatementEvent";
+import dayjs from "dayjs";
 
 @Entity()
 export class TransactionStatementEventTable {
@@ -29,6 +30,9 @@ export class TransactionStatementEventTable {
   @Column()
   description: string;
 
+  @Column({ nullable: true })
+  transactionDate: string;
+
   @Column()
   createdAt: number;
 
@@ -43,6 +47,7 @@ export class TransactionStatementEventTable {
     record.type = model.type;
     record.amount = model.amount;
     record.description = model.description;
+    record.transactionDate = model.transactionDate;
     record.createdAt = model.createdAt;
 
     return record;
@@ -58,6 +63,7 @@ export class TransactionStatementEventTable {
       amount: this.amount,
       description: this.description,
       createdAt: this.createdAt,
+      transactionDate: this.transactionDate,
     };
   }
 }
