@@ -7,6 +7,14 @@ import dayjs from "dayjs";
 import { useAuth } from "../helper/auth";
 import { Link, useNavigate } from "react-router-dom";
 import useSWR from "swr";
+import {
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 const Table = ({
   header,
@@ -184,6 +192,32 @@ export const IndexPage = () => {
     >
       <Link to="/login">LOGIN</Link>
       <h1>kakeibo</h1>
+
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        css={css`
+          display: grid;
+          place-items: center;
+        `}
+      >
+        <>
+          <PieChart width={500} height={400}>
+            <Pie
+              data={search ?? []}
+              dataKey="amount"
+              cx={120}
+              cy={200}
+              innerRadius={60}
+              outerRadius={80}
+              fill="#8884d8"
+              paddingAngle={5}
+              label={(entry) => entry.title}
+            />
+            <Tooltip />
+          </PieChart>
+        </>
+      </ResponsiveContainer>
 
       <Table header={[]} data={search} />
 
