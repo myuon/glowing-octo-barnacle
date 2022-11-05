@@ -6,6 +6,50 @@ import { SHA256 } from "../helper/sha256";
 import dayjs from "dayjs";
 import { useAuth } from "../helper/auth";
 import { Link, useNavigate } from "react-router-dom";
+import useSWR from "swr";
+
+const Table = ({
+  header,
+  data,
+}: {
+  header: string[];
+  data?: Record<string, string>[];
+}) => {
+  return (
+    <table
+      css={css`
+        th,
+        td {
+          padding: 4px 8px;
+          font-size: 12px;
+        }
+
+        tr:nth-of-type(odd) {
+          background-color: #eee;
+        }
+      `}
+    >
+      <thead>
+        {data && data?.length > 0 ? (
+          <tr>
+            {header.map((key) => (
+              <th key={key}>{key}</th>
+            ))}
+          </tr>
+        ) : null}
+      </thead>
+      <tbody>
+        {data?.map((row, index) => (
+          <tr key={index}>
+            {Object.values(row).map((value, index) => (
+              <td key={index}>{value}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 export interface ImportedTransaction {
   schema: string;
@@ -50,7 +94,7 @@ const guessRecordFromHeader = (
       amount: Math.abs(amount),
       description: row["ご利用店名（海外ご利用店名／海外都市名）"],
       transactionDate: dayjs(
-        row["お支払日"].replace("年", "-").replace("月", "-").replace("日", "")
+        row["ご利用日"].replace("年", "-").replace("月", "-").replace("日", "")
       ).format("YYYY-MM-DD"),
     };
   }
@@ -109,6 +153,27 @@ export const IndexPage = () => {
     navigate("/login");
   }
 
+  const { data: search } = useSWR(
+    token ? [token, "/api/transactionStatementEvents/search"] : null,
+    async (token: string, url: string) => {
+      const resp = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          transactionDateSpan: {
+            start: "2022-07-01",
+            end: "2022-07-31",
+          },
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return resp.json();
+    }
+  );
+  console.log(search);
+
   return (
     <main
       css={css`
@@ -119,6 +184,8 @@ export const IndexPage = () => {
     >
       <Link to="/login">LOGIN</Link>
       <h1>kakeibo</h1>
+
+      <Table header={[]} data={search} />
 
       <button
         onClick={() => {
@@ -157,38 +224,7 @@ export const IndexPage = () => {
         }}
       />
 
-      <table
-        css={css`
-          th,
-          td {
-            padding: 4px 8px;
-            font-size: 12px;
-          }
-
-          tr:nth-of-type(odd) {
-            background-color: #eee;
-          }
-        `}
-      >
-        <thead>
-          {data.length > 0 && (
-            <tr>
-              {header.map((key) => (
-                <th key={key}>{key}</th>
-              ))}
-            </tr>
-          )}
-        </thead>
-        <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
-              {Object.values(row).map((value, index) => (
-                <td key={index}>{value}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <Table header={header} data={data} />
 
       <button
         disabled={data.length === 0}
