@@ -4,6 +4,9 @@ import Papa from "papaparse";
 import Encoding from "encoding-japanese";
 import { sha256 } from "../helper/sha256";
 import dayjs from "dayjs";
+import { sequential } from "../helper/promise";
+import { useAuth } from "../helper/auth";
+import { Link, useNavigate } from "react-router-dom";
 
 export interface ImportedTransaction {
   schema: string;
@@ -60,8 +63,8 @@ const guessRecordFromHeader = async (
 
 const addUniqueKeys = async (rows: ImportedTransaction[]) => {
   const dateKey: { [key: string]: Set<string> } = {};
-  const result = await Promise.all(
-    rows.map(async (row) => {
+  const result = await sequential(
+    rows.map((row) => async () => {
       if (!dateKey[row.transactionDate]) {
         dateKey[row.transactionDate] = new Set();
       }
@@ -105,6 +108,11 @@ export const IndexPage = () => {
   const ref = useRef<HTMLInputElement>(null);
   const [data, setData] = useState<Record<string, string>[]>([]);
   const header = Object.keys(data[0] ?? {});
+  const { token } = useAuth();
+  const navigate = useNavigate();
+  if (!token) {
+    navigate("/login");
+  }
 
   return (
     <main
@@ -114,6 +122,7 @@ export const IndexPage = () => {
         justify-content: center;
       `}
     >
+      <Link to="/login">LOGIN</Link>
       <h1>kakeibo</h1>
 
       <button
@@ -194,10 +203,16 @@ export const IndexPage = () => {
               data.map((row) => guessRecordFromHeader(header, row))
             )
           ).filter((t): t is ImportedTransaction => Boolean(t));
+          const input = await addUniqueKeys(records);
+          console.log(input);
 
           const resp = await fetch("/api/transactionStatementEvents", {
             method: "POST",
-            body: JSON.stringify(addUniqueKeys(records)),
+            body: JSON.stringify(input),
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
           });
           console.log(await resp.text());
 

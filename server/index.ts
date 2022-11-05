@@ -9,6 +9,7 @@ import cors from "@koa/cors";
 import koaBody from "koa-body";
 import { TransactionStatementEvent } from "./model/transactionStatementEvent";
 import Router from "koa-router";
+import adminKey from "../.secrets/firebase-admin-key.json";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -21,7 +22,9 @@ const transactionStatementEventRepository = dataSource.getRepository(
   TransactionStatementEventTable
 );
 
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.cert(adminKey as admin.ServiceAccount),
+});
 
 const auth = admin.auth();
 const app = new Koa();
@@ -45,16 +48,19 @@ app.use(async (ctx, next) => {
 
   await next();
 });
+
 router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
   console.log(ctx.request.body);
   const input = JSON.parse(ctx.request.body) as TransactionStatementEvent[];
   await transactionStatementEventRepository.save(
     input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
   );
+  ctx.status = 200;
 });
 router.get("/transactionStatementEvents", async (ctx) => {
   const result = await transactionStatementEventRepository.find();
   ctx.body = result.map((r) => r.toTransactionStatementEvent());
+  ctx.status = 200;
 });
 
 app.use(async (ctx, next) => {
