@@ -50,17 +50,15 @@ app.use(async (ctx, next) => {
 });
 
 router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
-  console.log(ctx.request.body);
-  const input = JSON.parse(ctx.request.body) as TransactionStatementEvent[];
+  const input = ctx.request.body as TransactionStatementEvent[];
   await transactionStatementEventRepository.save(
     input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
   );
-  ctx.status = 200;
+  ctx.body = "OK";
 });
 router.get("/transactionStatementEvents", async (ctx) => {
   const result = await transactionStatementEventRepository.find();
-  ctx.body = result.map((r) => r.toTransactionStatementEvent());
-  ctx.status = 200;
+  return result.map((r) => r.toTransactionStatementEvent());
 });
 
 app.use(async (ctx, next) => {
@@ -70,7 +68,7 @@ app.use(async (ctx, next) => {
   ) {
     return serve(path.resolve(__dirname, "web"))(ctx, next);
   } else {
-    next();
+    return next();
   }
 });
 
