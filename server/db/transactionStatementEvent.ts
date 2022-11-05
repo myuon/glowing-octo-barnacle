@@ -1,4 +1,8 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
+import {
+  TransactionStatementEvent,
+  TransactionStatementType,
+} from "../model/transactionStatementEvent";
 
 @Entity()
 export class TransactionStatementEventTable {
@@ -27,4 +31,33 @@ export class TransactionStatementEventTable {
 
   @Column()
   createdAt: number;
+
+  static fromTransactionStatementEvent(
+    model: TransactionStatementEvent
+  ): TransactionStatementEventTable {
+    const record = new TransactionStatementEventTable();
+    record.uniqueKey = model.uniqueKey;
+    record.title = model.title;
+    record.dividedCount = model.dividedCount;
+    record.dividedIndex = model.dividedIndex;
+    record.type = model.type;
+    record.amount = model.amount;
+    record.description = model.description;
+    record.createdAt = model.createdAt;
+
+    return record;
+  }
+
+  toTransactionStatementEvent(): TransactionStatementEvent {
+    return {
+      uniqueKey: this.uniqueKey,
+      title: this.title,
+      dividedCount: this.dividedCount,
+      dividedIndex: this.dividedIndex,
+      type: this.type as TransactionStatementType,
+      amount: this.amount,
+      description: this.description,
+      createdAt: this.createdAt,
+    };
+  }
 }
