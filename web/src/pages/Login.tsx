@@ -1,13 +1,6 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../api/firebase";
-
-const useAuth = () => {
-  return {
-    login: async (token: string, userId: string) => {
-      return;
-    },
-  };
-};
+import { useAuth } from "../helper/auth";
 
 const provider = new GoogleAuthProvider();
 
@@ -25,7 +18,7 @@ export const LoginPage = () => {
             return;
           }
 
-          await login(token, result.user.uid);
+          await login(token);
         }}
       >
         Sign In With Google
