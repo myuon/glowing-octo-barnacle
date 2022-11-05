@@ -46,7 +46,8 @@ app.use(async (ctx, next) => {
   await next();
 });
 router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
-  const input = ctx.request.body as TransactionStatementEvent[];
+  console.log(ctx.request.body);
+  const input = JSON.parse(ctx.request.body) as TransactionStatementEvent[];
   await transactionStatementEventRepository.save(
     input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
   );
