@@ -9,6 +9,11 @@ export const IndexPage = () => {
   const { data: search } = useSWR<ImportedTransaction[]>(
     "/api/transactionStatementEvents/search",
     async (url: string) => {
+      const token = await getAuthToken();
+      if (!token) {
+        throw new Error("not authenticated");
+      }
+
       const resp = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -19,7 +24,7 @@ export const IndexPage = () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${await getAuthToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       return resp.json();
