@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { theme } from "./theme";
 
 export const Table = ({
   header,
@@ -17,7 +18,7 @@ export const Table = ({
         }
 
         tr:nth-of-type(odd) {
-          background-color: #eee;
+          background-color: ${theme.palette.gray[100]};
         }
       `}
     >
