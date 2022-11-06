@@ -1,11 +1,11 @@
 import { css } from "@emotion/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Papa from "papaparse";
 import Encoding from "encoding-japanese";
 import { SHA256 } from "../helper/sha256";
 import dayjs from "dayjs";
-import { useAuth } from "../helper/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { getAuthToken } from "../helper/auth";
+import { Link } from "react-router-dom";
 import useSWR from "swr";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -182,17 +182,10 @@ export const IndexPage = () => {
   const ref = useRef<HTMLInputElement>(null);
   const [data, setData] = useState<Record<string, string>[]>([]);
   const header = Object.keys(data[0] ?? {});
-  const { token } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-    }
-  }, [navigate, token]);
 
   const { data: search } = useSWR<ImportedTransaction[]>(
-    token ? [token, "/api/transactionStatementEvents/search"] : null,
-    async (token: string, url: string) => {
+    "/api/transactionStatementEvents/search",
+    async (url: string) => {
       const resp = await fetch(url, {
         method: "POST",
         body: JSON.stringify({
@@ -203,7 +196,7 @@ export const IndexPage = () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${await getAuthToken()}`,
         },
       });
       return resp.json();
@@ -313,7 +306,7 @@ export const IndexPage = () => {
             body: JSON.stringify(input),
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${await getAuthToken()}`,
             },
           });
           console.log(await resp.text());

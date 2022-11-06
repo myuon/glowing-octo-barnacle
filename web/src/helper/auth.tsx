@@ -1,4 +1,5 @@
 import React, { PropsWithChildren, useMemo } from "react";
+import { auth } from "../api/firebase";
 import { useLocalStorageState } from "./useLocalStorageState";
 
 export interface AuthProviderState {
@@ -46,4 +47,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       {children}
     </AuthProviderContext.Provider>
   );
+};
+
+export const getAuthToken = async () => {
+  return await auth.currentUser?.getIdToken();
 };
