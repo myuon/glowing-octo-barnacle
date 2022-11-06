@@ -1,6 +1,5 @@
 import "reflect-metadata";
 import Koa from "koa";
-import serve from "koa-static";
 import * as path from "path";
 import { DataSource } from "typeorm";
 import {
@@ -18,6 +17,7 @@ import {
   transactionStatementEventSearch,
 } from "./src/handler/transactionStatementEvents";
 import { authJwt } from "./src/middleware/auth";
+import { serveStatic } from "./src/middleware/serve";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -42,9 +42,6 @@ const router = new Router({
   prefix: "/api",
 });
 
-app.use(cors());
-app.use(authJwt(auth));
-
 router.post("/transactionStatementEvents", koaBody(), async (ctx) =>
   transactionStatementEventSaveAll(handlerApp, ctx)
 );
@@ -52,17 +49,14 @@ router.post("/transactionStatementEvents/search", koaBody(), async (ctx) =>
   transactionStatementEventSearch(handlerApp, ctx)
 );
 
-app.use(async (ctx, next) => {
-  if (
-    !ctx.request.path.startsWith("/api") &&
-    process.env.NODE_ENV === "production"
-  ) {
-    return serve(path.resolve(__dirname, "web"))(ctx, next);
-  } else {
-    return next();
-  }
-});
-
+app.use(cors());
+app.use(authJwt(auth));
+app.use(
+  serveStatic({
+    path: "web",
+    excludePrefix: "/api",
+  })
+);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
