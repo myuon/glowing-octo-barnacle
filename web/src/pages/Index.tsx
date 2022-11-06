@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Papa from "papaparse";
 import Encoding from "encoding-japanese";
 import { SHA256 } from "../helper/sha256";
@@ -7,21 +7,14 @@ import dayjs from "dayjs";
 import { useAuth } from "../helper/auth";
 import { Link, useNavigate } from "react-router-dom";
 import useSWR from "swr";
-import {
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 const Table = ({
   header,
   data,
 }: {
   header: string[];
-  data?: Record<string, string>[];
+  data?: Record<string, string | number>[];
 }) => {
   return (
     <table
@@ -157,11 +150,13 @@ export const IndexPage = () => {
   const header = Object.keys(data[0] ?? {});
   const { token } = useAuth();
   const navigate = useNavigate();
-  if (!token) {
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate, token]);
 
-  const { data: search } = useSWR(
+  const { data: search } = useSWR<ImportedTransaction[]>(
     token ? [token, "/api/transactionStatementEvents/search"] : null,
     async (token: string, url: string) => {
       const resp = await fetch(url, {
@@ -204,7 +199,7 @@ export const IndexPage = () => {
         <>
           <PieChart width={500} height={400}>
             <Pie
-              data={search ?? []}
+              data={search?.filter((t) => t.type === "income") ?? []}
               dataKey="amount"
               cx={120}
               cy={200}
@@ -212,14 +207,25 @@ export const IndexPage = () => {
               outerRadius={80}
               fill="#8884d8"
               paddingAngle={5}
-              label={(entry) => entry.title}
+              label={(entry) => entry.title.slice(0, 10)}
+            />
+            <Pie
+              data={search?.filter((t) => t.type === "expense") ?? []}
+              dataKey="amount"
+              cx={400}
+              cy={200}
+              innerRadius={60}
+              outerRadius={80}
+              fill="#14b8a6"
+              paddingAngle={5}
+              label={(entry) => entry.title.slice(0, 10)}
             />
             <Tooltip />
           </PieChart>
         </>
       </ResponsiveContainer>
 
-      <Table header={[]} data={search} />
+      <Table header={[]} data={search?.map((t) => ({ ...t }))} />
 
       <button
         onClick={() => {
