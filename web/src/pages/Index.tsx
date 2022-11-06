@@ -80,7 +80,7 @@ const guessRecordFromHeader = (
       "現地通貨額・通貨名称・換算レート",
     ])
   ) {
-    const schema = "MUFG";
+    const schema = "MUFG_CREDIT_CARD";
     const amount = Number(row["ご利用金額（円）"]?.replaceAll(",", ""));
     if (!row["ご利用金額（円）"]) {
       return undefined;
@@ -97,6 +97,36 @@ const guessRecordFromHeader = (
       transactionDate: dayjs(
         row["ご利用日"].replace("年", "-").replace("月", "-").replace("日", "")
       ).format("YYYY-MM-DD"),
+    };
+  }
+  if (
+    JSON.stringify(header) ===
+    JSON.stringify([
+      "日付",
+      "摘要",
+      "摘要内容",
+      "支払い金額",
+      "預かり金額",
+      "差引残高",
+      "メモ",
+      "未資金化区分",
+      "入払区分",
+    ])
+  ) {
+    const schema = "MUFG";
+
+    return {
+      schema,
+      title: row["摘要"] ?? "不明",
+      dividedCount: 1,
+      dividedIndex: 1,
+      type: row["支払い金額"] ? "expense" : "income",
+      amount: Number(
+        row["支払い金額"]?.replaceAll(",", "") ||
+          row["預かり金額"]?.replaceAll(",", "")
+      ),
+      description: row["摘要内容"] ?? "",
+      transactionDate: dayjs(row["日付"]).format("YYYY-MM-DD"),
     };
   }
 
@@ -175,7 +205,6 @@ export const IndexPage = () => {
       return resp.json();
     }
   );
-  console.log(search);
 
   return (
     <main
