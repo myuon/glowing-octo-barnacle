@@ -18,6 +18,7 @@ import {
 } from "./src/handler/transactionStatementEvents";
 import { authJwt } from "./src/middleware/auth";
 import { serveStatic } from "./src/middleware/serve";
+import logger from "koa-pino-logger";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -49,6 +50,8 @@ router.post("/transactionStatementEvents/search", koaBody(), async (ctx) =>
   transactionStatementEventSearch(handlerApp, ctx)
 );
 
+app.silent = true;
+app.use(logger());
 app.use(cors());
 app.use(authJwt(auth));
 app.use(
