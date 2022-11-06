@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { IndexPage } from "./pages/Index";
 import { ImportPage } from "./pages/Import";
 import { IndexLayout } from "./layouts/Index";
+import { MonthlyPage } from "./pages/Monthly";
 
 const router = createBrowserRouter([
   {
@@ -16,7 +17,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/monthly/:ym",
-        element: <IndexPage />,
+        element: <MonthlyPage />,
       },
       {
         index: true,
