@@ -8,6 +8,7 @@ import { assertIsDefined } from "../helper/assert";
 import { SquareIcon } from "../components/Icon";
 import { useYearMonth } from "../helper/yearMonth";
 import dayjs from "dayjs";
+import { TextButton } from "../components/Button";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -41,33 +42,41 @@ export const MonthlyPage = () => {
   );
 
   return (
-    <div
+    <section
       css={css`
         display: grid;
         gap: 32px;
         padding: 16px;
       `}
     >
-      <h1>kakeibo</h1>
-
-      <button
-        onClick={() => {
-          next();
-        }}
+      <header
+        css={css`
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+        `}
       >
-        Next
-      </button>
-
-      <button
-        onClick={() => {
-          prev();
-        }}
-      >
-        Prev
-      </button>
-
-      <h2>{startDate.format("YYYY/MM")}</h2>
-
+        <TextButton
+          iconName="bi-arrow-left"
+          onClick={() => {
+            prev();
+          }}
+        />
+        <div
+          css={css`
+            display: grid;
+            justify-content: center;
+          `}
+        >
+          <h2>{startDate.format("YYYY/MM")}</h2>
+        </div>
+        <TextButton
+          iconName="bi-arrow-right"
+          onClick={() => {
+            next();
+          }}
+        />
+      </header>
       <div
         css={css`
           display: grid;
@@ -163,6 +172,6 @@ export const MonthlyPage = () => {
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
