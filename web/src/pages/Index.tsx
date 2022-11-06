@@ -15,6 +15,7 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
+import { Link } from "react-router-dom";
 
 export const IndexPage = () => {
   const { data: search } = useSWR<TransactionStatementEvent[]>(
@@ -57,11 +58,16 @@ export const IndexPage = () => {
         return acc;
       }, {} as Record<string, Record<string, number>>) ?? {};
 
-    return Object.entries(typeMap ?? []).map(([ym, typeMap]) => ({
-      name: dayjs(`${ym}01`).format("YY'MM"),
-      income: typeMap["income"] ?? 0,
-      expense: -typeMap["expense"] ?? 0,
-    }));
+    return Object.entries(typeMap ?? []).map(([ym, typeMap]) => {
+      const startDate = dayjs(`${ym}01`);
+
+      return {
+        name: startDate.format("YY'MM"),
+        startDate,
+        income: typeMap["income"] ?? 0,
+        expense: -typeMap["expense"] ?? 0,
+      };
+    });
   }, [search]);
 
   return (
@@ -116,13 +122,13 @@ export const IndexPage = () => {
             border-bottom: 1px solid ${theme.palette.gray[100]};
           }
           & > * {
-            padding-bottom: 16px;
-            margin-bottom: 16px;
+            padding: 16px 0;
           }
         `}
       >
         {monthlyData?.map((item) => (
-          <div
+          <Link
+            to={`/monthly/${item.startDate.format("YYYYMM")}`}
             key={item.name}
             css={css`
               display: grid;
@@ -130,6 +136,7 @@ export const IndexPage = () => {
               gap: 16px;
               align-items: center;
               justify-content: space-between;
+              color: inherit;
             `}
           >
             <SquareIcon iconName={"bi-cash"} />
@@ -146,7 +153,7 @@ export const IndexPage = () => {
                   line-height: 1;
                 `}
               >
-                {item.name}
+                {item.startDate.format("'YY MMM")}
               </div>
             </div>
             <span
@@ -193,7 +200,7 @@ export const IndexPage = () => {
                 currency: "JPY",
               }).format(Math.abs(item.expense))}
             </span>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
