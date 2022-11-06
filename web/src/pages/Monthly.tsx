@@ -68,7 +68,13 @@ export const MonthlyPage = () => {
             justify-content: center;
           `}
         >
-          <h2>{startDate.format("YYYY/MM")}</h2>
+          <h2
+            css={css`
+              font-size: 20px;
+            `}
+          >
+            {startDate.format("YYYY/MM")}
+          </h2>
         </div>
         <TextButton
           iconName="bi-arrow-right"
@@ -166,7 +172,7 @@ export const MonthlyPage = () => {
                   color: ${theme.palette.gray[400]};
                 `}
               >
-                {dayjs(item.transactionDate).format("MM/DD")}
+                {dayjs(item.transactionDate).format("M/D")}
               </small>
             </div>
           </div>

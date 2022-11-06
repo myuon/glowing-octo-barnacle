@@ -5,6 +5,8 @@ import { IndexPage } from "./pages/Index";
 import { ImportPage } from "./pages/Import";
 import { IndexLayout } from "./layouts/Index";
 import { MonthlyPage } from "./pages/Monthly";
+import { css, Global } from "@emotion/react";
+import { theme } from "./components/theme";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +36,18 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <AuthProvider>
+      <Global
+        styles={css`
+          a {
+            color: ${theme.palette.primary.main};
+          }
+
+          a:hover,
+          a:active {
+            color: ${theme.palette.primary.dark};
+          }
+        `}
+      />
       <RouterProvider router={router} />
     </AuthProvider>
   );

@@ -4,7 +4,11 @@ import { Link, Outlet } from "react-router-dom";
 export const IndexLayout = () => {
   return (
     <>
-      <header>
+      <header
+        css={css`
+          padding: 8px 16px;
+        `}
+      >
         <nav
           css={css`
             display: flex;
