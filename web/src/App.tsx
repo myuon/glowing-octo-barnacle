@@ -21,14 +21,14 @@ const router = createBrowserRouter([
         element: <MonthlyPage />,
       },
       {
+        path: "/login",
+        element: <LoginPage />,
+      },
+      {
         index: true,
         element: <IndexPage />,
       },
     ],
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
   },
 ]);
 
@@ -37,6 +37,13 @@ const App = () => {
     <>
       <Global
         styles={css`
+          body {
+            @media screen and (min-width: 760px) {
+              width: 760px;
+              margin: 0 auto;
+            }
+          }
+
           a {
             color: ${theme.palette.primary.main};
           }

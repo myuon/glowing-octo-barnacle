@@ -1,5 +1,6 @@
 import { css } from "@emotion/react";
 import { ComponentPropsWithoutRef } from "react";
+import { theme } from "./theme";
 
 export const Paper = ({ ...props }: ComponentPropsWithoutRef<"div">) => {
   return (
@@ -8,7 +9,7 @@ export const Paper = ({ ...props }: ComponentPropsWithoutRef<"div">) => {
       css={css`
         padding: 16px;
         border-radius: 12px;
-        box-shadow: 0 25px 50px -12px rgb(17 24 39 / 0.15);
+        box-shadow: ${theme.shadow.xxl};
       `}
     />
   );

@@ -28,4 +28,8 @@ export const theme = {
       },
     },
   },
+  shadow: {
+    xxl: "0 25px 50px -12px rgb(17 24 39 / 0.15)",
+    footer: "0 -5px 50px -12px rgb(17 24 39 / 0.15)",
+  },
 };
