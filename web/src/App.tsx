@@ -1,6 +1,6 @@
 import "./App.css";
 import LoginPage from "./pages/Login";
-import { AuthProvider } from "./helper/auth";
+import { AuthProvider } from "./components/auth";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { IndexPage } from "./pages/Index";
 import { ImportPage } from "./pages/Import";

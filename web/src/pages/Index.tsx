@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { getAuthToken } from "../helper/auth";
+import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Table } from "../components/Table";
