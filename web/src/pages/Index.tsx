@@ -3,8 +3,14 @@ import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
 import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
 import { theme } from "../components/theme";
+import { Link, useParams } from "react-router-dom";
+import { assertIsDefined } from "../helper/assert";
+import dayjs from "dayjs";
 
 export const IndexPage = () => {
+  const { ym } = useParams<{ ym: string }>();
+  assertIsDefined(ym);
+
   const { data: search } = useSWR<TransactionStatementEvent[]>(
     "/api/transactionStatementEvents/search",
     async (url: string) => {
@@ -17,8 +23,8 @@ export const IndexPage = () => {
         method: "POST",
         body: JSON.stringify({
           transactionDateSpan: {
-            start: "2022-07-01",
-            end: "2022-07-31",
+            start: dayjs(`${ym}01`).startOf("month").format("YYYY-MM-DD"),
+            end: dayjs(`${ym}01`).endOf("month").format("YYYY-MM-DD"),
           },
         }),
         headers: {
@@ -39,6 +45,8 @@ export const IndexPage = () => {
       `}
     >
       <h1>kakeibo</h1>
+
+      <Link to="/monthly/202207">202207</Link>
 
       <h2>2022/07</h2>
 

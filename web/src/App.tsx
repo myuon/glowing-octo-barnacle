@@ -15,6 +15,10 @@ const router = createBrowserRouter([
         element: <ImportPage />,
       },
       {
+        path: "/monthly/:ym",
+        element: <IndexPage />,
+      },
+      {
         index: true,
         element: <IndexPage />,
       },

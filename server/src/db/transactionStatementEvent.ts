@@ -91,6 +91,7 @@ export const newTransactionStatementEventRepository = (
     },
   };
 };
+
 export type TransactionStatementEventRepository = ReturnType<
   typeof newTransactionStatementEventRepository
 >;
