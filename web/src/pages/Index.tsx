@@ -114,6 +114,13 @@ const guessRecordFromHeader = (
     ])
   ) {
     const schema = "MUFG";
+    const amount = Number(
+      row["支払い金額"]?.replaceAll(",", "") ||
+        row["預かり金額"]?.replaceAll(",", "")
+    );
+    if (isNaN(amount)) {
+      return undefined;
+    }
 
     return {
       schema,
@@ -121,10 +128,7 @@ const guessRecordFromHeader = (
       dividedCount: 1,
       dividedIndex: 1,
       type: row["支払い金額"] ? "expense" : "income",
-      amount: Number(
-        row["支払い金額"]?.replaceAll(",", "") ||
-          row["預かり金額"]?.replaceAll(",", "")
-      ),
+      amount,
       description: row["摘要内容"] ?? "",
       transactionDate: dayjs(row["日付"]).format("YYYY-MM-DD"),
     };
@@ -314,7 +318,9 @@ export const IndexPage = () => {
           });
           console.log(await resp.text());
 
-          setData([]);
+          if (resp.ok) {
+            setData([]);
+          }
         }}
       >
         上記内容で登録

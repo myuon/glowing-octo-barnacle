@@ -11,6 +11,13 @@ import { TransactionStatementEvent } from "./model/transactionStatementEvent";
 import Router from "koa-router";
 import adminKey from "../.secrets/firebase-admin-key.json";
 import dayjs from "dayjs";
+import { z } from "zod";
+
+const schemaForType =
+  <T>() =>
+  <S extends z.ZodType<T, any, any>>(arg: S) => {
+    return arg;
+  };
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -51,7 +58,29 @@ app.use(async (ctx, next) => {
 });
 
 router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
-  const input = (ctx.request.body as TransactionStatementEvent[]).map((r) => ({
+  const inputSchema = schemaForType<
+    Omit<TransactionStatementEvent, "createdAt">[]
+  >()(
+    z.array(
+      z.object({
+        uniqueKey: z.string(),
+        title: z.string(),
+        dividedCount: z.number(),
+        dividedIndex: z.number(),
+        type: z.enum(["income", "expense"]),
+        amount: z.number(),
+        description: z.string(),
+        transactionDate: z.string(),
+      })
+    )
+  );
+  const result = inputSchema.safeParse(ctx.request.body);
+  if (!result.success) {
+    ctx.throw(400, "Bad Request", result.error);
+    return;
+  }
+
+  const input = result.data.map((r) => ({
     ...r,
     createdAt: dayjs().unix(),
   }));
