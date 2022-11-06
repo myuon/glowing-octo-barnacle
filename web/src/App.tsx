@@ -1,5 +1,4 @@
 import LoginPage from "./pages/Login";
-import { AuthProvider } from "./components/auth";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { IndexPage } from "./pages/Index";
 import { ImportPage } from "./pages/Import";
@@ -35,7 +34,7 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <AuthProvider>
+    <>
       <Global
         styles={css`
           a {
@@ -49,7 +48,7 @@ const App = () => {
         `}
       />
       <RouterProvider router={router} />
-    </AuthProvider>
+    </>
   );
 };
 

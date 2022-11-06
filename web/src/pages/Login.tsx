@@ -1,12 +1,11 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../api/firebase";
-import { useAuth } from "../components/auth";
 
 const provider = new GoogleAuthProvider();
 
 export const LoginPage = () => {
-  const { login } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -24,7 +23,7 @@ export const LoginPage = () => {
           }
           console.log(token);
 
-          await login(token);
+          navigate("/");
         }}
       >
         Sign In With Google
