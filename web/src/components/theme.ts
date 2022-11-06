@@ -12,5 +12,10 @@ export const theme = {
       800: "#1f2937",
       900: "#111827",
     },
+    primary: {
+      light: "#cffafe",
+      main: "#06b6d4",
+      dark: "#0e7490",
+    },
   },
 };

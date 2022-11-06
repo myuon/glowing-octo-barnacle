@@ -6,6 +6,7 @@ import { theme } from "../components/theme";
 import { Link, useParams } from "react-router-dom";
 import { assertIsDefined } from "../helper/assert";
 import dayjs from "dayjs";
+import { SquareIcon } from "../components/Icon";
 
 export const IndexPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -68,10 +69,25 @@ export const IndexPage = () => {
             key={item.uniqueKey}
             css={css`
               display: grid;
-              grid-template-columns: 1fr auto;
+              grid-template-columns: auto 1fr auto;
+              gap: 12px;
+              align-items: center;
               justify-content: space-between;
             `}
           >
+            <SquareIcon
+              iconName={
+                item.type === "income"
+                  ? "bi-piggy-bank"
+                  : item.title === "カ－ド"
+                  ? "bi-credit-card"
+                  : item.title === "水道"
+                  ? "bi-house"
+                  : item.description.includes("ヤチン")
+                  ? "bi-house"
+                  : "bi-cash"
+              }
+            />
             <div
               css={css`
                 display: grid;
