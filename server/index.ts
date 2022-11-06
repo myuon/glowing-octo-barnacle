@@ -2,22 +2,18 @@ import "reflect-metadata";
 import Koa from "koa";
 import serve from "koa-static";
 import * as path from "path";
-import { Between, DataSource } from "typeorm";
+import { DataSource } from "typeorm";
 import { TransactionStatementEventTable } from "./src/db/transactionStatementEvent";
 import * as admin from "firebase-admin";
 import cors from "@koa/cors";
 import koaBody from "koa-body";
-import { TransactionStatementEvent } from "./src/model/transactionStatementEvent";
 import Router from "koa-router";
 import adminKey from "../.secrets/firebase-admin-key.json";
-import dayjs from "dayjs";
-import { z } from "zod";
-
-const schemaForType =
-  <T>() =>
-  <S extends z.ZodType<T, any, any>>(arg: S) => {
-    return arg;
-  };
+import { App } from "./src/handler/app";
+import {
+  transactionStatementEventSaveAll,
+  transactionStatementEventSearch,
+} from "./src/handler/transactionStatementEvents";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -57,52 +53,16 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-router.post("/transactionStatementEvents", koaBody(), async (ctx) => {
-  const inputSchema = schemaForType<
-    Omit<TransactionStatementEvent, "createdAt">[]
-  >()(
-    z.array(
-      z.object({
-        uniqueKey: z.string(),
-        title: z.string(),
-        dividedCount: z.number(),
-        dividedIndex: z.number(),
-        type: z.enum(["income", "expense"]),
-        amount: z.number(),
-        description: z.string(),
-        transactionDate: z.string(),
-      })
-    )
-  );
-  const result = inputSchema.safeParse(ctx.request.body);
-  if (!result.success) {
-    ctx.throw(400, "Bad Request", result.error);
-    return;
-  }
+const handlerApp: App = {
+  transactionStatementEventRepository,
+};
 
-  const input = result.data.map((r) => ({
-    ...r,
-    createdAt: dayjs().unix(),
-  }));
-  await transactionStatementEventRepository.save(
-    input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
-  );
-  ctx.body = "OK";
-});
-router.post("/transactionStatementEvents/search", koaBody(), async (ctx) => {
-  const input = ctx.request.body as {
-    transactionDateSpan: { start: string; end: string };
-  };
-  const result = await transactionStatementEventRepository.find({
-    where: {
-      transactionDate: Between(
-        input.transactionDateSpan.start,
-        input.transactionDateSpan.end
-      ),
-    },
-  });
-  ctx.body = result.map((r) => r.toTransactionStatementEvent());
-});
+router.post("/transactionStatementEvents", koaBody(), async (ctx) =>
+  transactionStatementEventSaveAll(handlerApp, ctx)
+);
+router.post("/transactionStatementEvents/search", koaBody(), async (ctx) =>
+  transactionStatementEventSearch(handlerApp, ctx)
+);
 
 app.use(async (ctx, next) => {
   if (
