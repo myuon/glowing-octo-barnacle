@@ -1,6 +1,5 @@
 import { css } from "@emotion/react";
 import { getAuthToken } from "../helper/auth";
-import { Link } from "react-router-dom";
 import useSWR from "swr";
 import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { Table } from "../components/Table";
@@ -28,19 +27,16 @@ export const IndexPage = () => {
   );
 
   return (
-    <main
+    <div
       css={css`
         display: grid;
         gap: 32px;
         justify-content: center;
       `}
     >
-      <Link to="/login">LOGIN</Link>
       <h1>kakeibo</h1>
 
       <ResponsiveContainer
-        width="100%"
-        height="100%"
         css={css`
           display: grid;
           place-items: center;
@@ -76,6 +72,6 @@ export const IndexPage = () => {
       </ResponsiveContainer>
 
       <Table header={[]} data={search?.map((t) => ({ ...t }))} />
-    </main>
+    </div>
   );
 };

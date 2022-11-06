@@ -4,19 +4,26 @@ import { AuthProvider } from "./helper/auth";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { IndexPage } from "./pages/Index";
 import { ImportPage } from "./pages/Import";
+import { IndexLayout } from "./layouts/Index";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <IndexPage />,
+    element: <IndexLayout />,
+    children: [
+      {
+        path: "/import",
+        element: <ImportPage />,
+      },
+      {
+        index: true,
+        element: <IndexPage />,
+      },
+    ],
   },
   {
     path: "/login",
     element: <LoginPage />,
-  },
-  {
-    path: "/import",
-    element: <ImportPage />,
   },
 ]);
 
