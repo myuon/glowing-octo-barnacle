@@ -3,7 +3,6 @@ import {
   TransactionStatementEvent,
   TransactionStatementType,
 } from "../model/transactionStatementEvent";
-import dayjs from "dayjs";
 
 @Entity()
 export class TransactionStatementEventTable {

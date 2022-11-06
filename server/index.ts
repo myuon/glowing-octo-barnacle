@@ -2,7 +2,7 @@ import "reflect-metadata";
 import Koa from "koa";
 import serve from "koa-static";
 import * as path from "path";
-import { DataSource, In } from "typeorm";
+import { Between, DataSource } from "typeorm";
 import { TransactionStatementEventTable } from "./src/db/transactionStatementEvent";
 import * as admin from "firebase-admin";
 import cors from "@koa/cors";
@@ -95,10 +95,10 @@ router.post("/transactionStatementEvents/search", koaBody(), async (ctx) => {
   };
   const result = await transactionStatementEventRepository.find({
     where: {
-      transactionDate: In([
+      transactionDate: Between(
         input.transactionDateSpan.start,
-        input.transactionDateSpan.end,
-      ]),
+        input.transactionDateSpan.end
+      ),
     },
   });
   ctx.body = result.map((r) => r.toTransactionStatementEvent());
