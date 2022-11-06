@@ -7,7 +7,11 @@ export const IndexLayout = () => {
       css={css`
         display: grid;
         justify-content: center;
-        max-width: 1280px;
+        width: min(1280px, 100%);
+
+        @media screen and (max-width: 1280px) {
+          width: 100%;
+        }
       `}
     >
       <header>

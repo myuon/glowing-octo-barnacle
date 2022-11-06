@@ -3,7 +3,7 @@ import { Context } from "koa";
 import { Between } from "typeorm";
 import { z } from "zod";
 import { schemaForType } from "../helper/zod";
-import { TransactionStatementEvent } from "../model/transactionStatementEvent";
+import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
 import { App } from "./app";
 
 export const transactionStatementEventSaveAll = async (

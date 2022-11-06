@@ -4,7 +4,7 @@ import Encoding from "encoding-japanese";
 import Papa from "papaparse";
 import { useRef, useState } from "react";
 import { Table } from "../components/Table";
-import { getAuthToken } from "../helper/auth";
+import { getAuthToken } from "../components/auth";
 import { SHA256 } from "../helper/sha256";
 
 export interface ImportedTransaction {

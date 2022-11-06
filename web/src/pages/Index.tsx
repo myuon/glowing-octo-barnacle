@@ -1,12 +1,10 @@
 import { css } from "@emotion/react";
 import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
-import { Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import { Table } from "../components/Table";
-import { ImportedTransaction } from "./Import";
+import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
 
 export const IndexPage = () => {
-  const { data: search } = useSWR<ImportedTransaction[]>(
+  const { data: search } = useSWR<TransactionStatementEvent[]>(
     "/api/transactionStatementEvents/search",
     async (url: string) => {
       const token = await getAuthToken();
@@ -41,42 +39,36 @@ export const IndexPage = () => {
     >
       <h1>kakeibo</h1>
 
-      <ResponsiveContainer
-        css={css`
-          display: grid;
-          place-items: center;
-        `}
-      >
-        <>
-          <PieChart width={500} height={400}>
-            <Pie
-              data={search?.filter((t) => t.type === "income") ?? []}
-              dataKey="amount"
-              cx={120}
-              cy={200}
-              innerRadius={60}
-              outerRadius={80}
-              fill="#8884d8"
-              paddingAngle={5}
-              label={(entry) => entry.title.slice(0, 10)}
-            />
-            <Pie
-              data={search?.filter((t) => t.type === "expense") ?? []}
-              dataKey="amount"
-              cx={400}
-              cy={200}
-              innerRadius={60}
-              outerRadius={80}
-              fill="#14b8a6"
-              paddingAngle={5}
-              label={(entry) => entry.title.slice(0, 10)}
-            />
-            <Tooltip />
-          </PieChart>
-        </>
-      </ResponsiveContainer>
+      <h2>2022/07</h2>
 
-      <Table header={[]} data={search?.map((t) => ({ ...t }))} />
+      {search?.map((item) => (
+        <div
+          key={item.uniqueKey}
+          css={css`
+            display: grid;
+            grid-template-columns: 1fr auto;
+            justify-content: space-between;
+          `}
+        >
+          <div>
+            <div
+              css={css`
+                font-weight: 700;
+              `}
+            >
+              {item.title}
+            </div>
+            <div>{item.description}</div>
+          </div>
+          <div
+            css={css`
+              font-weight: 700;
+            `}
+          >
+            {item.type === "income" ? "+" : "-"} ¥{item.amount}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

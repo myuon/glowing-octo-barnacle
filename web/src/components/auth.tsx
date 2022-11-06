@@ -1,6 +1,6 @@
 import React, { PropsWithChildren, useMemo } from "react";
 import { auth } from "../api/firebase";
-import { useLocalStorageState } from "./useLocalStorageState";
+import { useLocalStorageState } from "../helper/useLocalStorageState";
 
 export interface AuthProviderState {
   authenticated: boolean;

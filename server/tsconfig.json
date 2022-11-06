@@ -12,5 +12,6 @@
     "strictPropertyInitialization": false,
     "moduleResolution": "node",
     "resolveJsonModule": true
-  }
+  },
+  "include": ["src", "../model"]
 }

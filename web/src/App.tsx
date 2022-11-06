@@ -1,4 +1,3 @@
-import "./App.css";
 import LoginPage from "./pages/Login";
 import { AuthProvider } from "./components/auth";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
