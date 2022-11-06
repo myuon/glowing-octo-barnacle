@@ -1,10 +1,10 @@
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 
-export const useYearMonth = () => {
+export const useYearMonth = (defaultYm?: string) => {
   const [yearMonth, setYearMonth] = useState<{ year: number; month: number }>(
     () => {
-      const today = dayjs();
+      const today = defaultYm ? dayjs(`${defaultYm}01`) : dayjs();
 
       return {
         year: today.year(),

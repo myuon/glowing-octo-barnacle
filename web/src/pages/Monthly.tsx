@@ -3,18 +3,26 @@ import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
 import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
 import { theme } from "../components/theme";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { assertIsDefined } from "../helper/assert";
 import { SquareIcon } from "../components/Icon";
 import { useYearMonth } from "../helper/yearMonth";
 import dayjs from "dayjs";
 import { TextButton } from "../components/Button";
+import { useEffect } from "react";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
   assertIsDefined(ym);
 
-  const { startDate, next, prev } = useYearMonth();
+  const { startDate, next, prev } = useYearMonth(ym);
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (ym !== startDate.format("YYYYMM")) {
+      navigate(`/monthly/${startDate.format("YYYYMM")}`);
+    }
+  }, [navigate, startDate, ym]);
 
   const { data: search } = useSWR<TransactionStatementEvent[]>(
     ["/api/transactionStatementEvents/search", startDate],
