@@ -16,6 +16,7 @@ export const TextButton = ({
         css`
           display: flex;
           gap: 8px;
+          padding: 0 4px;
         `,
         css`
           font-weight: 500;
