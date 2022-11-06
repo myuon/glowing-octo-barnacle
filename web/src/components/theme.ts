@@ -17,5 +17,13 @@ export const theme = {
       main: "#06b6d4",
       dark: "#0e7490",
     },
+    signature: {
+      income: {
+        main: "#06b6d4",
+      },
+      expense: {
+        main: "#fb923c",
+      },
+    },
   },
 };

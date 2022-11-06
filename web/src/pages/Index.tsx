@@ -3,17 +3,22 @@ import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
 import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
 import { theme } from "../components/theme";
-import { Link, useParams } from "react-router-dom";
-import { assertIsDefined } from "../helper/assert";
 import dayjs from "dayjs";
 import { SquareIcon } from "../components/Icon";
+import { useMemo } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
 
 export const IndexPage = () => {
-  const { ym } = useParams<{ ym: string }>();
-  assertIsDefined(ym);
-
   const { data: search } = useSWR<TransactionStatementEvent[]>(
-    "/api/transactionStatementEvents/search",
+    ["/api/transactionStatementEvents/search", 2022],
     async (url: string) => {
       const token = await getAuthToken();
       if (!token) {
@@ -24,8 +29,8 @@ export const IndexPage = () => {
         method: "POST",
         body: JSON.stringify({
           transactionDateSpan: {
-            start: dayjs(`${ym}01`).startOf("month").format("YYYY-MM-DD"),
-            end: dayjs(`${ym}01`).endOf("month").format("YYYY-MM-DD"),
+            start: dayjs(`20220101`).startOf("month").format("YYYY-MM-DD"),
+            end: dayjs(`20221231`).endOf("month").format("YYYY-MM-DD"),
           },
         }),
         headers: {
@@ -36,6 +41,28 @@ export const IndexPage = () => {
       return resp.json();
     }
   );
+  const monthlyData = useMemo(() => {
+    const typeMap =
+      search?.reduce((acc, cur) => {
+        const ym = dayjs(cur.transactionDate).format("YYYYMM");
+        if (!acc[ym]) {
+          acc[ym] = {};
+        }
+        if (!acc[ym][cur.type]) {
+          acc[ym][cur.type] = 0;
+        }
+
+        acc[ym][cur.type] += cur.amount;
+
+        return acc;
+      }, {} as Record<string, Record<string, number>>) ?? {};
+
+    return Object.entries(typeMap ?? []).map(([ym, typeMap]) => ({
+      name: dayjs(`${ym}01`).format("YY'MM"),
+      income: typeMap["income"] ?? 0,
+      expense: -typeMap["expense"] ?? 0,
+    }));
+  }, [search]);
 
   return (
     <div
@@ -45,11 +72,41 @@ export const IndexPage = () => {
         padding: 16px;
       `}
     >
-      <h1>kakeibo</h1>
+      <h2>Overview</h2>
 
-      <Link to="/monthly/202207">202207</Link>
-
-      <h2>2022/07</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart
+          width={700}
+          height={300}
+          data={monthlyData}
+          stackOffset="sign"
+          margin={{
+            top: 5,
+            right: 20,
+            left: 20,
+            bottom: 5,
+          }}
+          barSize={10}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke={theme.palette.gray[200]}
+          />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <Legend iconType="circle" />
+          <Bar
+            dataKey="income"
+            fill={theme.palette.signature.income.main}
+            stackId="stack"
+          />
+          <Bar
+            dataKey="expense"
+            fill={theme.palette.signature.expense.main}
+            stackId="stack"
+          />
+        </BarChart>
+      </ResponsiveContainer>
 
       <div
         css={css`
@@ -64,30 +121,18 @@ export const IndexPage = () => {
           }
         `}
       >
-        {search?.map((item) => (
+        {monthlyData?.map((item) => (
           <div
-            key={item.uniqueKey}
+            key={item.name}
             css={css`
               display: grid;
-              grid-template-columns: auto 1fr auto;
-              gap: 12px;
+              grid-template-columns: auto 1fr auto auto;
+              gap: 16px;
               align-items: center;
               justify-content: space-between;
             `}
           >
-            <SquareIcon
-              iconName={
-                item.type === "income"
-                  ? "bi-piggy-bank"
-                  : item.title === "カ－ド"
-                  ? "bi-credit-card"
-                  : item.title === "水道"
-                  ? "bi-house"
-                  : item.description.includes("ヤチン")
-                  ? "bi-house"
-                  : "bi-cash"
-              }
-            />
+            <SquareIcon iconName={"bi-cash"} />
             <div
               css={css`
                 display: grid;
@@ -101,29 +146,52 @@ export const IndexPage = () => {
                   line-height: 1;
                 `}
               >
-                {item.title}
+                {item.name}
               </div>
-              <small
-                css={css`
-                  font-size: 12px;
-                  line-height: 1;
-                  color: ${theme.palette.gray[400]};
-                `}
-              >
-                {item.description}
-              </small>
             </div>
             <span
               css={css`
+                display: flex;
+                gap: 4px;
                 font-weight: 700;
                 line-height: 1;
+
+                ::before {
+                  display: block;
+                  width: 14px;
+                  height: 14px;
+                  content: "";
+                  background-color: ${theme.palette.signature.income.main};
+                  border-radius: 50%;
+                }
               `}
             >
-              {item.type === "income" ? "+" : "-"}{" "}
               {new Intl.NumberFormat("ja-JP", {
                 style: "currency",
                 currency: "JPY",
-              }).format(item.amount)}
+              }).format(item.income)}
+            </span>
+            <span
+              css={css`
+                display: flex;
+                gap: 4px;
+                font-weight: 700;
+                line-height: 1;
+
+                ::before {
+                  display: block;
+                  width: 14px;
+                  height: 14px;
+                  content: "";
+                  background-color: ${theme.palette.signature.expense.main};
+                  border-radius: 50%;
+                }
+              `}
+            >
+              {new Intl.NumberFormat("ja-JP", {
+                style: "currency",
+                currency: "JPY",
+              }).format(Math.abs(item.expense))}
             </span>
           </div>
         ))}

@@ -17,6 +17,7 @@ export const IndexLayout = () => {
         >
           <Link to="/">INDEX</Link>
           <Link to="/import">IMPORT</Link>
+          <Link to="/monthly/202207">202207</Link>
         </nav>
       </header>
       <main>
