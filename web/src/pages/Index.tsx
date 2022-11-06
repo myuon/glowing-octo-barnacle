@@ -16,6 +16,7 @@ import {
   XAxis,
 } from "recharts";
 import { Link } from "react-router-dom";
+import { formatShortenedNumber } from "../helper/number";
 
 export const IndexPage = () => {
   const { data: search } = useSWR<TransactionStatementEvent[]>(
@@ -173,10 +174,7 @@ export const IndexPage = () => {
                 }
               `}
             >
-              {new Intl.NumberFormat("ja-JP", {
-                style: "currency",
-                currency: "JPY",
-              }).format(item.income)}
+              ￥{formatShortenedNumber(item.income)}
             </span>
             <span
               css={css`
@@ -195,10 +193,7 @@ export const IndexPage = () => {
                 }
               `}
             >
-              {new Intl.NumberFormat("ja-JP", {
-                style: "currency",
-                currency: "JPY",
-              }).format(Math.abs(item.expense))}
+              ￥{formatShortenedNumber(Math.abs(item.expense))}
             </span>
           </Link>
         ))}

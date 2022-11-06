@@ -9,7 +9,9 @@ import { SquareIcon } from "../components/Icon";
 import { useYearMonth } from "../helper/yearMonth";
 import dayjs from "dayjs";
 import { TextButton } from "../components/Button";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { formatNumber } from "../helper/number";
+import { Paper } from "../components/Paper";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -48,12 +50,30 @@ export const MonthlyPage = () => {
       return resp.json();
     }
   );
+  const summary = useMemo(() => {
+    if (!search) {
+      return undefined;
+    }
+
+    const income = search
+      ?.filter((v) => v.type === "income")
+      .reduce((acc, cur) => acc + cur.amount, 0);
+    const expense = search
+      ?.filter((v) => v.type === "expense")
+      .reduce((acc, cur) => acc + cur.amount, 0);
+
+    return {
+      income,
+      expense,
+      balance: income - expense,
+    };
+  }, [search]);
 
   return (
     <section
       css={css`
         display: grid;
-        gap: 32px;
+        gap: 24px;
         padding: 16px;
       `}
     >
@@ -81,7 +101,7 @@ export const MonthlyPage = () => {
               font-size: 20px;
             `}
           >
-            {startDate.format("YYYY/MM")}
+            {startDate.format("MMM YYYY")}
           </h2>
         </div>
         <TextButton
@@ -91,6 +111,56 @@ export const MonthlyPage = () => {
           }}
         />
       </header>
+
+      {summary ? (
+        <Paper
+          css={css`
+            margin-bottom: 16px;
+          `}
+        >
+          <div
+            css={css`
+              display: grid;
+              grid-template-columns: auto auto;
+              gap: 8px 24px;
+              justify-content: center;
+              font-weight: 700;
+            `}
+          >
+            <span
+              css={css`
+                color: ${theme.palette.signature.income.main};
+              `}
+            >
+              INCOME
+            </span>
+            <span>
+              {formatNumber(summary.income, {
+                currency: true,
+              })}
+            </span>
+            <span
+              css={css`
+                color: ${theme.palette.signature.expense.main};
+              `}
+            >
+              EXPENSE
+            </span>
+            <span>
+              {formatNumber(summary.expense, {
+                currency: true,
+              })}
+            </span>
+            <span>BALANCE</span>
+            <span>
+              {formatNumber(summary.balance, {
+                currency: true,
+              })}
+            </span>
+          </div>
+        </Paper>
+      ) : null}
+
       <div
         css={css`
           display: grid;
@@ -169,10 +239,7 @@ export const MonthlyPage = () => {
                 `}
               >
                 {item.type === "income" ? "+" : "-"}{" "}
-                {new Intl.NumberFormat("ja-JP", {
-                  style: "currency",
-                  currency: "JPY",
-                }).format(item.amount)}
+                {formatNumber(item.amount, { currency: true })}
               </span>
               <small
                 css={css`
