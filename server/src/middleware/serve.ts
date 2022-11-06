@@ -11,7 +11,7 @@ export const serveStatic =
         : false) &&
       process.env.NODE_ENV === "production"
     ) {
-      return serve(path.resolve(__dirname, options.path))(ctx, next);
+      return serve(options.path)(ctx, next);
     } else {
       return next();
     }

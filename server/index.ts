@@ -56,7 +56,7 @@ app.use(cors());
 app.use(authJwt(auth));
 app.use(
   serveStatic({
-    path: "web",
+    path: path.resolve(__dirname, '..', "web"),
     excludePrefix: "/api",
   })
 );
