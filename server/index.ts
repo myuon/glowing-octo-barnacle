@@ -3,7 +3,10 @@ import Koa from "koa";
 import serve from "koa-static";
 import * as path from "path";
 import { DataSource } from "typeorm";
-import { TransactionStatementEventTable } from "./src/db/transactionStatementEvent";
+import {
+  newTransactionStatementEventRepository,
+  TransactionStatementEventTable,
+} from "./src/db/transactionStatementEvent";
 import * as admin from "firebase-admin";
 import cors from "@koa/cors";
 import koaBody from "koa-body";
@@ -14,6 +17,7 @@ import {
   transactionStatementEventSaveAll,
   transactionStatementEventSearch,
 } from "./src/handler/transactionStatementEvents";
+import { authJwt } from "./src/middleware/auth";
 
 const dataSource = new DataSource({
   type: "sqlite",
@@ -22,9 +26,11 @@ const dataSource = new DataSource({
   logging: true,
   synchronize: true,
 });
-const transactionStatementEventRepository = dataSource.getRepository(
-  TransactionStatementEventTable
-);
+const handlerApp: App = {
+  transactionStatementEventRepository: newTransactionStatementEventRepository(
+    dataSource.getRepository(TransactionStatementEventTable)
+  ),
+};
 
 admin.initializeApp({
   credential: admin.credential.cert(adminKey as admin.ServiceAccount),
@@ -37,25 +43,7 @@ const router = new Router({
 });
 
 app.use(cors());
-app.use(async (ctx, next) => {
-  const token = ctx.request.header.authorization?.split("Bearer ")?.[1];
-
-  if (token) {
-    try {
-      const decodedToken = await auth.verifyIdToken(token);
-      ctx.state.auth = decodedToken;
-    } catch (error) {
-      console.error(error);
-      ctx.throw("Unauthorized", 401);
-    }
-  }
-
-  await next();
-});
-
-const handlerApp: App = {
-  transactionStatementEventRepository,
-};
+app.use(authJwt(auth));
 
 router.post("/transactionStatementEvents", koaBody(), async (ctx) =>
   transactionStatementEventSaveAll(handlerApp, ctx)

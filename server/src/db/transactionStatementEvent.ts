@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  FindManyOptions,
+  PrimaryColumn,
+  Repository,
+} from "typeorm";
 import {
   TransactionStatementEvent,
   TransactionStatementType,
@@ -66,3 +72,25 @@ export class TransactionStatementEventTable {
     };
   }
 }
+
+export const newTransactionStatementEventRepository = (
+  repo: Repository<TransactionStatementEventTable>
+) => {
+  return {
+    save: async (models: TransactionStatementEvent[]) => {
+      return await repo.save(
+        models.map(TransactionStatementEventTable.fromTransactionStatementEvent)
+      );
+    },
+    findMany: async (
+      options: FindManyOptions<TransactionStatementEventTable>
+    ) => {
+      const result = await repo.find(options);
+
+      return result.map((r) => r.toTransactionStatementEvent());
+    },
+  };
+};
+export type TransactionStatementEventRepository = ReturnType<
+  typeof newTransactionStatementEventRepository
+>;

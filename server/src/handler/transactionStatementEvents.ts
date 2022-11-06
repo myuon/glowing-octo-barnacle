@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import { Context } from "koa";
 import { Between } from "typeorm";
 import { z } from "zod";
-import { TransactionStatementEventTable } from "../db/transactionStatementEvent";
 import { schemaForType } from "../helper/zod";
 import { TransactionStatementEvent } from "../model/transactionStatementEvent";
 import { App } from "./app";
@@ -30,16 +29,13 @@ export const transactionStatementEventSaveAll = async (
   const result = inputSchema.safeParse(ctx.request.body);
   if (!result.success) {
     ctx.throw(400, "Bad Request", result.error);
-    return;
   }
 
   const input = result.data.map((r) => ({
     ...r,
     createdAt: dayjs().unix(),
   }));
-  await app.transactionStatementEventRepository.save(
-    input.map(TransactionStatementEventTable.fromTransactionStatementEvent)
-  );
+  await app.transactionStatementEventRepository.save(input);
   ctx.body = "OK";
 };
 
@@ -50,7 +46,7 @@ export const transactionStatementEventSearch = async (
   const input = ctx.request.body as {
     transactionDateSpan: { start: string; end: string };
   };
-  const result = await app.transactionStatementEventRepository.find({
+  const result = await app.transactionStatementEventRepository.findMany({
     where: {
       transactionDate: Between(
         input.transactionDateSpan.start,
@@ -58,5 +54,5 @@ export const transactionStatementEventSearch = async (
       ),
     },
   });
-  ctx.body = result.map((r) => r.toTransactionStatementEvent());
+  ctx.body = result;
 };

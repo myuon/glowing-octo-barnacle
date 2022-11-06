@@ -1,6 +1,5 @@
-import { Repository } from "typeorm";
-import { TransactionStatementEventTable } from "../db/transactionStatementEvent";
+import { TransactionStatementEventRepository } from "../db/transactionStatementEvent";
 
 export interface App {
-  transactionStatementEventRepository: Repository<TransactionStatementEventTable>;
+  transactionStatementEventRepository: TransactionStatementEventRepository;
 }
