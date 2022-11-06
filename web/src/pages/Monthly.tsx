@@ -116,6 +116,7 @@ export const MonthlyPage = () => {
             `}
           >
             <SquareIcon
+              color={item.type === "income" ? "income" : "expense"}
               iconName={
                 item.type === "income"
                   ? "bi-piggy-bank"

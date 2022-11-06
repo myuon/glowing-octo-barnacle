@@ -19,9 +19,11 @@ export const theme = {
     },
     signature: {
       income: {
+        light: "#cffafe",
         main: "#06b6d4",
       },
       expense: {
+        light: "#ffedd5",
         main: "#fb923c",
       },
     },

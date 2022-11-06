@@ -5,7 +5,7 @@ export const SquareIcon = ({
   color = "primary",
   iconName,
 }: {
-  color?: "primary";
+  color?: "primary" | keyof typeof theme.palette.signature;
   iconName: string;
 }) => {
   return (
@@ -15,7 +15,9 @@ export const SquareIcon = ({
         place-items: center;
         height: 100%;
         aspect-ratio: 1;
-        background-color: ${theme.palette[color].light};
+        background-color: ${color === "primary"
+          ? theme.palette.primary.light
+          : theme.palette.signature[color].light};
         border-radius: 6px;
       `}
     >
@@ -25,7 +27,9 @@ export const SquareIcon = ({
           padding: 6px;
           font-size: 24px;
           line-height: 1;
-          color: ${theme.palette[color].main};
+          color: ${color === "primary"
+            ? theme.palette.primary.main
+            : theme.palette.signature[color].main};
         `}
       />
     </div>
