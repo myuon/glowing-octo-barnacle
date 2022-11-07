@@ -36,7 +36,7 @@
     "typescript": "^4.8.4"
   },
   "scripts": {
-    "dev": "nodemon --watch index.ts --watch src --exec \"yarn start\"",
+    "dev": "nodemon --watch './src/**/*.*' --watch index.ts --exec \"yarn start\"",
     "build": "tsc",
     "start": "ts-node index.ts | pino-pretty",
     "lint": "eslint .",

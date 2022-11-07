@@ -31,6 +31,15 @@ export const MonthlyPage = () => {
     },
     onlyNullParentKey: true,
   });
+  const { data: children } = useTransactionStatementEvent(
+    search
+      ? {
+          uniqueKeys: search?.map((s) => s.uniqueKey),
+        }
+      : undefined
+  );
+  console.log(children);
+
   const summary = useMemo(() => {
     if (!search) {
       return undefined;

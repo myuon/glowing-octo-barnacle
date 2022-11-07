@@ -47,10 +47,12 @@ export const transactionStatementEventSearch = async (
 ) => {
   const inputSchema = schemaForType<TransactionStatementEventSearchRequest>()(
     z.object({
-      transactionDateSpan: z.object({
-        start: z.string(),
-        end: z.string(),
-      }),
+      transactionDateSpan: z
+        .object({
+          start: z.string(),
+          end: z.string(),
+        })
+        .optional(),
       amountSpan: z
         .object({
           min: z.number(),
@@ -69,10 +71,12 @@ export const transactionStatementEventSearch = async (
 
   const result = await app.transactionStatementEventRepository.findMany({
     where: {
-      transactionDate: Between(
-        input.data.transactionDateSpan.start,
-        input.data.transactionDateSpan.end
-      ),
+      transactionDate: input.data.transactionDateSpan
+        ? Between(
+            input.data.transactionDateSpan.start,
+            input.data.transactionDateSpan.end
+          )
+        : undefined,
       parentKey: input.data.onlyNullParentKey ? IsNull() : input.data.parentKey,
       amount: input.data.amountSpan
         ? Between(input.data.amountSpan.min, input.data.amountSpan.max)
