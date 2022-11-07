@@ -46,6 +46,7 @@ export const transactionStatementEventSearch = async (
 ) => {
   const inputSchema = schemaForType<{
     transactionDateSpan: { start: string; end: string };
+    amountSpan?: { min: number; max: number };
     parentKey?: string;
     onlyNullParentKey?: boolean;
   }>()(
@@ -54,6 +55,12 @@ export const transactionStatementEventSearch = async (
         start: z.string(),
         end: z.string(),
       }),
+      amountSpan: z
+        .object({
+          min: z.number(),
+          max: z.number(),
+        })
+        .optional(),
       parentKey: z.string().optional(),
       onlyNullParentKey: z.boolean().optional(),
     })
@@ -70,6 +77,9 @@ export const transactionStatementEventSearch = async (
         input.data.transactionDateSpan.end
       ),
       parentKey: input.data.onlyNullParentKey ? IsNull() : input.data.parentKey,
+      amount: input.data.amountSpan
+        ? Between(input.data.amountSpan.min, input.data.amountSpan.max)
+        : undefined,
     },
   });
   ctx.body = result;
