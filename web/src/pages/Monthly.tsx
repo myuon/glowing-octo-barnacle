@@ -10,6 +10,7 @@ import { useEffect, useMemo } from "react";
 import { formatNumber } from "../helper/number";
 import { Paper } from "../components/Paper";
 import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
+import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -38,7 +39,21 @@ export const MonthlyPage = () => {
         }
       : undefined
   );
-  console.log(children);
+  const childrenByParentKey = useMemo(
+    () =>
+      children?.reduce((acc, cur) => {
+        const parentKey = cur.parentKey;
+        if (!parentKey) {
+          return acc;
+        }
+        if (!acc[parentKey]) {
+          acc[parentKey] = [];
+        }
+        acc[parentKey].push(cur);
+        return acc;
+      }, {} as Record<string, TransactionStatementEvent[]>),
+    [children]
+  );
 
   const summary = useMemo(() => {
     if (!search) {
@@ -163,85 +178,92 @@ export const MonthlyPage = () => {
           }
         `}
       >
-        {search?.map((item) => (
-          <div
-            key={item.uniqueKey}
-            css={css`
-              display: grid;
-              grid-template-columns: auto 1fr auto;
-              gap: 12px;
-              align-items: center;
-              justify-content: space-between;
-            `}
-          >
-            <SquareIcon
-              color={item.type === "income" ? "income" : "expense"}
-              iconName={
-                item.type === "income"
-                  ? "bi-piggy-bank"
-                  : item.title === "カ－ド"
-                  ? "bi-credit-card"
-                  : item.title === "水道"
-                  ? "bi-house"
-                  : item.description.includes("ヤチン")
-                  ? "bi-house"
-                  : "bi-cash"
-              }
-            />
+        {search?.map((item) => {
+          const children = childrenByParentKey?.[item.uniqueKey];
+
+          return (
             <div
+              key={item.uniqueKey}
               css={css`
                 display: grid;
-                gap: 6px;
+                grid-template-columns: auto 1fr auto;
+                gap: 12px;
+                align-items: center;
+                justify-content: space-between;
               `}
             >
-              <span
+              <SquareIcon
+                color={item.type === "income" ? "income" : "expense"}
+                iconName={
+                  item.type === "income"
+                    ? "bi-piggy-bank"
+                    : item.title === "カ－ド"
+                    ? "bi-credit-card"
+                    : item.title === "水道"
+                    ? "bi-house"
+                    : item.description.includes("ヤチン")
+                    ? "bi-house"
+                    : "bi-cash"
+                }
+              />
+              <div
                 css={css`
-                  font-size: 16px;
-                  font-weight: 600;
-                  line-height: 1;
+                  display: grid;
+                  gap: 6px;
                 `}
               >
-                {item.title}
-              </span>
-              <small
+                <span
+                  css={css`
+                    font-size: 16px;
+                    font-weight: 600;
+                    line-height: 1;
+                  `}
+                >
+                  {item.title}
+                  {children && children.length > 0
+                    ? ` (${children.length})`
+                    : null}
+                </span>
+                <small
+                  css={css`
+                    font-size: 12px;
+                    line-height: 1;
+                    color: ${theme.palette.gray[400]};
+                  `}
+                >
+                  {item.description}
+                </small>
+              </div>
+              <div
                 css={css`
-                  font-size: 12px;
-                  line-height: 1;
-                  color: ${theme.palette.gray[400]};
+                  display: grid;
+                  gap: 6px;
+                  text-align: right;
                 `}
               >
-                {item.description}
-              </small>
+                <span
+                  css={css`
+                    font-size: 16px;
+                    font-weight: 700;
+                    line-height: 1;
+                  `}
+                >
+                  {item.type === "income" ? "+" : "-"}{" "}
+                  {formatNumber(item.amount, { currency: true })}
+                </span>
+                <small
+                  css={css`
+                    font-size: 12px;
+                    line-height: 1;
+                    color: ${theme.palette.gray[400]};
+                  `}
+                >
+                  {dayjs(item.transactionDate).format("M/D")}
+                </small>
+              </div>
             </div>
-            <div
-              css={css`
-                display: grid;
-                gap: 6px;
-                text-align: right;
-              `}
-            >
-              <span
-                css={css`
-                  font-size: 16px;
-                  font-weight: 700;
-                  line-height: 1;
-                `}
-              >
-                {item.type === "income" ? "+" : "-"}{" "}
-                {formatNumber(item.amount, { currency: true })}
-              </span>
-              <small
-                css={css`
-                  font-size: 12px;
-                  line-height: 1;
-                  color: ${theme.palette.gray[400]};
-                `}
-              >
-                {dayjs(item.transactionDate).format("M/D")}
-              </small>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
