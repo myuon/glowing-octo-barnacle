@@ -34,6 +34,7 @@ export const IndexPage = () => {
             start: dayjs(`20220101`).startOf("month").format("YYYY-MM-DD"),
             end: dayjs(`20221231`).endOf("month").format("YYYY-MM-DD"),
           },
+          onlyNullParentKey: true,
         }),
         headers: {
           "Content-Type": "application/json",
