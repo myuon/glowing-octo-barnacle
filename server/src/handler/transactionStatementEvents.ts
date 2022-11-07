@@ -88,3 +88,13 @@ export const transactionStatementEventSearch = async (
   });
   ctx.body = result;
 };
+
+export const transactionStatementEventGet = async (app: App, ctx: Context) => {
+  const result = await app.transactionStatementEventRepository.findOne(
+    ctx.params.id
+  );
+  if (!result) {
+    ctx.throw(404, "Not Found");
+  }
+  ctx.body = result;
+};

@@ -94,6 +94,15 @@ export const newTransactionStatementEventRepository = (
 
       return result.map((r) => r.toTransactionStatementEvent());
     },
+    findOne: async (uniqueKey: string) => {
+      const result = await repo.findOne({
+        where: {
+          uniqueKey,
+        },
+      });
+
+      return result?.toTransactionStatementEvent();
+    },
   };
 };
 

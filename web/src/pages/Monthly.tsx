@@ -9,7 +9,7 @@ import { TextButton } from "../components/Button";
 import { useEffect, useMemo } from "react";
 import { formatNumber } from "../helper/number";
 import { Paper } from "../components/Paper";
-import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
+import { useSearchTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
 import { List } from "../components/List";
 
@@ -26,14 +26,14 @@ export const MonthlyPage = () => {
     }
   }, [navigate, startDate, ym]);
 
-  const { data: search } = useTransactionStatementEvent({
+  const { data: search } = useSearchTransactionStatementEvent({
     transactionDateSpan: {
       start: startDate.startOf("month").format("YYYY-MM-DD"),
       end: startDate.endOf("month").format("YYYY-MM-DD"),
     },
     onlyNullParentKey: true,
   });
-  const { data: children } = useTransactionStatementEvent(
+  const { data: children } = useSearchTransactionStatementEvent(
     search
       ? {
           parentKeys: search?.map((s) => s.uniqueKey),

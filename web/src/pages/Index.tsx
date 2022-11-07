@@ -14,10 +14,10 @@ import {
 } from "recharts";
 import { Link } from "react-router-dom";
 import { formatShortenedNumber } from "../helper/number";
-import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
+import { useSearchTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 
 export const IndexPage = () => {
-  const { data: search } = useTransactionStatementEvent({
+  const { data: search } = useSearchTransactionStatementEvent({
     transactionDateSpan: {
       start: dayjs(`20220101`).startOf("month").format("YYYY-MM-DD"),
       end: dayjs(`20221231`).endOf("month").format("YYYY-MM-DD"),

@@ -7,7 +7,7 @@ import { Table } from "../components/Table";
 import { getAuthToken } from "../components/auth";
 import { SHA256 } from "../helper/sha256";
 import { TextButton } from "../components/Button";
-import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
+import { useSearchTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 import { TransactionStatementEventCreateRequest } from "../../../shared/request/transactionStatementEvent";
 
 export interface ImportedTransaction {
@@ -146,7 +146,7 @@ export const ImportPage = () => {
   const expenseAmount = inputs
     .map((i) => (i.type === "income" ? -i.amount : i.amount))
     .reduce((a, b) => a + b, 0);
-  const { data: parentCandidates } = useTransactionStatementEvent(
+  const { data: parentCandidates } = useSearchTransactionStatementEvent(
     inputs.length > 0
       ? {
           transactionDateSpan: {

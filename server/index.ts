@@ -13,6 +13,7 @@ import Router from "koa-router";
 import adminKey from "../.secrets/firebase-admin-key.json";
 import { App } from "./src/handler/app";
 import {
+  transactionStatementEventGet,
   transactionStatementEventSaveAll,
   transactionStatementEventSearch,
 } from "./src/handler/transactionStatementEvents";
@@ -48,6 +49,9 @@ router.post("/transactionStatementEvents", koaBody(), async (ctx) =>
 );
 router.post("/transactionStatementEvents/search", koaBody(), async (ctx) =>
   transactionStatementEventSearch(handlerApp, ctx)
+);
+router.get("/transactionStatementEvents/:id", koaBody(), async (ctx) =>
+  transactionStatementEventGet(handlerApp, ctx)
 );
 
 app.silent = true;
