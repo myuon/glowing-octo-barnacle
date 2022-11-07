@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Between, IsNull } from "typeorm";
+import { Between, In, IsNull } from "typeorm";
 import { z } from "zod";
 import { schemaForType } from "../helper/zod";
 import { App } from "./app";
@@ -59,6 +59,7 @@ export const transactionStatementEventSearch = async (
         .optional(),
       parentKey: z.string().optional(),
       onlyNullParentKey: z.boolean().optional(),
+      uniqueKeys: z.array(z.string()).optional(),
     })
   );
   const input = inputSchema.safeParse(ctx.request.body);
@@ -76,6 +77,7 @@ export const transactionStatementEventSearch = async (
       amount: input.data.amountSpan
         ? Between(input.data.amountSpan.min, input.data.amountSpan.max)
         : undefined,
+      uniqueKey: input.data.uniqueKeys ? In(input.data.uniqueKeys) : undefined,
     },
   });
   ctx.body = result;

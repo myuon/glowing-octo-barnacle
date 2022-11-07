@@ -5,6 +5,7 @@ export interface TransactionStatementEventSearchRequest {
   amountSpan?: { min: number; max: number };
   parentKey?: string;
   onlyNullParentKey?: boolean;
+  uniqueKeys?: string[];
 }
 
 export type TransactionStatementEventCreateRequest = Omit<
