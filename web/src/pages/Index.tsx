@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
-import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
+import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
 import { theme } from "../components/theme";
 import dayjs from "dayjs";
 import { SquareIcon } from "../components/Icon";

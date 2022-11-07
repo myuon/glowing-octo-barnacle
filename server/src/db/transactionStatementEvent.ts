@@ -8,7 +8,7 @@ import {
 import {
   TransactionStatementEvent,
   TransactionStatementType,
-} from "../../../model/transactionStatementEvent";
+} from "../../../shared/transactionStatementEvent";
 
 @Entity()
 export class TransactionStatementEventTable {

@@ -15,6 +15,7 @@ export const Table = ({
         td {
           padding: 4px 8px;
           font-size: 12px;
+          word-break: break-all;
         }
 
         tr:nth-of-type(odd) {

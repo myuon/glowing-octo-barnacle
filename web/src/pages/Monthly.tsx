@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import { getAuthToken } from "../components/auth";
 import useSWR from "swr";
-import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
+import { TransactionStatementEvent } from "../../../shared/transactionStatementEvent";
 import { theme } from "../components/theme";
 import { useNavigate, useParams } from "react-router-dom";
 import { assertIsDefined } from "../helper/assert";

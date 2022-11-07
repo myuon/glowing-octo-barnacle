@@ -2,17 +2,18 @@ import dayjs from "dayjs";
 import { Between, IsNull } from "typeorm";
 import { z } from "zod";
 import { schemaForType } from "../helper/zod";
-import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
 import { App } from "./app";
 import { Context } from "koa";
+import {
+  TransactionStatementEventCreateRequest,
+  TransactionStatementEventSearchRequest,
+} from "../../../shared/request/transactionStatementEvent";
 
 export const transactionStatementEventSaveAll = async (
   app: App,
   ctx: Context
 ) => {
-  const inputSchema = schemaForType<
-    Omit<TransactionStatementEvent, "createdAt">[]
-  >()(
+  const inputSchema = schemaForType<TransactionStatementEventCreateRequest>()(
     z.array(
       z.object({
         uniqueKey: z.string(),
@@ -44,12 +45,7 @@ export const transactionStatementEventSearch = async (
   app: App,
   ctx: Context
 ) => {
-  const inputSchema = schemaForType<{
-    transactionDateSpan: { start: string; end: string };
-    amountSpan?: { min: number; max: number };
-    parentKey?: string;
-    onlyNullParentKey?: boolean;
-  }>()(
+  const inputSchema = schemaForType<TransactionStatementEventSearchRequest>()(
     z.object({
       transactionDateSpan: z.object({
         start: z.string(),

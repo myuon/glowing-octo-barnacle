@@ -1,4 +1,4 @@
-import { css } from "@emotion/react";
+import { css, Global } from "@emotion/react";
 import dayjs from "dayjs";
 import Encoding from "encoding-japanese";
 import Papa from "papaparse";
@@ -7,13 +7,15 @@ import { Table } from "../components/Table";
 import { getAuthToken } from "../components/auth";
 import { SHA256 } from "../helper/sha256";
 import { TextButton } from "../components/Button";
+import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
+import { TransactionStatementEventCreateRequest } from "../../../shared/request/transactionStatementEvent";
 
 export interface ImportedTransaction {
   schema: string;
   title: string;
   dividedCount: number;
   dividedIndex: number;
-  type: string;
+  type: "income" | "expense";
   amount: number;
   description: string;
   transactionDate: string;
@@ -38,7 +40,7 @@ const guessRecordFromHeader = (
   ) {
     const schema = "MUFG_CREDIT_CARD";
     const amount = Number(row["ご利用金額（円）"]?.replaceAll(",", ""));
-    if (!row["ご利用金額（円）"]) {
+    if (!row["ご利用金額（円）"] || isNaN(amount)) {
       return undefined;
     }
 
@@ -47,9 +49,9 @@ const guessRecordFromHeader = (
       title: row["ご利用店名（海外ご利用店名／海外都市名）"],
       dividedCount: Number(row["支払い回数"]) || 1,
       dividedIndex: Number(row["何回目"]) || 1,
-      type: amount > 0 ? "income" : "expense",
+      type: amount > 0 ? "expense" : "income",
       amount: Math.abs(amount),
-      description: row["ご利用店名（海外ご利用店名／海外都市名）"],
+      description: row["現地通貨額・通貨名称・換算レート"],
       transactionDate: dayjs(
         row["ご利用日"].replace("年", "-").replace("月", "-").replace("日", "")
       ).format("YYYY-MM-DD"),
@@ -139,85 +141,135 @@ export const ImportPage = () => {
   const [data, setData] = useState<Record<string, string>[]>([]);
   const header = Object.keys(data[0] ?? {});
 
+  const [inputs, setInputs] = useState<TransactionStatementEventCreateRequest>(
+    []
+  );
+
+  const amount = inputs.map((i) => i.amount).reduce((a, b) => a + b, 0);
+  const { data: parentCandidates } = useTransactionStatementEvent(
+    inputs.length > 0
+      ? {
+          transactionDateSpan: {
+            start: dayjs(inputs.at(-1)?.transactionDate).format("YYYY-MM-DD"),
+            end: "2099-12-31",
+          },
+          amountSpan: {
+            min: amount,
+            max: amount,
+          },
+        }
+      : undefined
+  );
+  console.log(parentCandidates);
+
   return (
-    <div
-      css={css`
-        display: grid;
-        gap: 24px;
-      `}
-    >
-      <TextButton
-        onClick={() => {
-          ref.current?.click();
-        }}
-      >
-        アップロード
-      </TextButton>
-      <input
-        type="file"
-        accept="text/csv"
-        css={css`
-          display: none;
-        `}
-        ref={ref}
-        onChange={async (event) => {
-          const files = Array.from(event.currentTarget.files ?? []);
-          const file = files?.[0];
-          if (!file) {
-            return;
-          }
-
-          const content = Encoding.convert(
-            new Uint8Array(await file.arrayBuffer()),
-            {
-              to: "UNICODE",
-              type: "string",
+    <>
+      <Global
+        styles={css`
+          @media screen and (min-width: 760px) {
+            body {
+              width: 100%;
             }
-          );
-
-          const result = Papa.parse<Record<string, string>>(content, {
-            header: true,
-          });
-
-          setData((prev) => [...prev, ...result.data]);
-        }}
-      />
-
-      <Table header={header} data={data} />
-
-      <TextButton
-        disabled={data.length === 0}
-        onClick={async () => {
-          const records = data
-            .map((row) => guessRecordFromHeader(header, row))
-            .filter((t): t is ImportedTransaction => Boolean(t));
-          const input = addUniqueKeys(records);
-          console.log(input);
-
-          const resp = await fetch("/api/transactionStatementEvents", {
-            method: "POST",
-            body: JSON.stringify(input),
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${await getAuthToken()}`,
-            },
-          });
-          console.log(await resp.text());
-
-          if (resp.ok) {
-            setData([]);
           }
-        }}
+        `}
+      />
+      <div
+        css={css`
+          display: grid;
+          gap: 24px;
+        `}
       >
-        上記内容で登録
-      </TextButton>
-      <TextButton
-        onClick={() => {
-          setData([]);
-        }}
-      >
-        内容を破棄
-      </TextButton>
-    </div>
+        <TextButton
+          onClick={() => {
+            ref.current?.click();
+          }}
+        >
+          アップロード
+        </TextButton>
+        <input
+          type="file"
+          accept="text/csv"
+          css={css`
+            display: none;
+          `}
+          ref={ref}
+          onChange={async (event) => {
+            const files = Array.from(event.currentTarget.files ?? []);
+            const file = files?.[0];
+            if (!file) {
+              return;
+            }
+
+            const content = Encoding.convert(
+              new Uint8Array(await file.arrayBuffer()),
+              {
+                to: "UNICODE",
+                type: "string",
+              }
+            );
+
+            const result = Papa.parse<Record<string, string>>(content, {
+              header: true,
+            });
+
+            setData((prev) => [...prev, ...result.data]);
+          }}
+        />
+
+        <Table header={header} data={data} />
+
+        {inputs.length > 0 ? (
+          <Table
+            header={Object.keys(inputs[0])}
+            data={inputs.map((t) => ({ ...t }))}
+          />
+        ) : null}
+
+        <TextButton
+          disabled={data.length === 0}
+          onClick={async () => {
+            const records = data
+              .map((row) => guessRecordFromHeader(header, row))
+              .filter((t): t is ImportedTransaction => Boolean(t));
+            setInputs(addUniqueKeys(records));
+          }}
+        >
+          入力へ変換
+        </TextButton>
+        <TextButton
+          disabled={data.length === 0}
+          onClick={async () => {
+            const records = data
+              .map((row) => guessRecordFromHeader(header, row))
+              .filter((t): t is ImportedTransaction => Boolean(t));
+            const input = addUniqueKeys(records);
+            console.log(input);
+
+            const resp = await fetch("/api/transactionStatementEvents", {
+              method: "POST",
+              body: JSON.stringify(input),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${await getAuthToken()}`,
+              },
+            });
+            console.log(await resp.text());
+
+            if (resp.ok) {
+              setData([]);
+            }
+          }}
+        >
+          上記内容で登録
+        </TextButton>
+        <TextButton
+          onClick={() => {
+            setData([]);
+          }}
+        >
+          内容を破棄
+        </TextButton>
+      </div>
+    </>
   );
 };
