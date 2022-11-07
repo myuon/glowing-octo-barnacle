@@ -74,7 +74,6 @@ export const MonthlyPage = () => {
       css={css`
         display: grid;
         gap: 24px;
-        padding: 16px;
       `}
     >
       <header

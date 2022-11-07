@@ -22,6 +22,7 @@ export const IndexLayout = () => {
       </header>
       <main
         css={css`
+          padding: 16px;
           margin-bottom: 120px;
         `}
       >

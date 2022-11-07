@@ -77,7 +77,6 @@ export const IndexPage = () => {
       css={css`
         display: grid;
         gap: 32px;
-        padding: 16px;
       `}
     >
       <h2>Overview</h2>

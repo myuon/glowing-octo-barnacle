@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { Table } from "../components/Table";
 import { getAuthToken } from "../components/auth";
 import { SHA256 } from "../helper/sha256";
+import { TextButton } from "../components/Button";
 
 export interface ImportedTransaction {
   schema: string;
@@ -139,14 +140,19 @@ export const ImportPage = () => {
   const header = Object.keys(data[0] ?? {});
 
   return (
-    <>
-      <button
+    <div
+      css={css`
+        display: grid;
+        gap: 24px;
+      `}
+    >
+      <TextButton
         onClick={() => {
           ref.current?.click();
         }}
       >
         アップロード
-      </button>
+      </TextButton>
       <input
         type="file"
         accept="text/csv"
@@ -179,7 +185,7 @@ export const ImportPage = () => {
 
       <Table header={header} data={data} />
 
-      <button
+      <TextButton
         disabled={data.length === 0}
         onClick={async () => {
           const records = data
@@ -204,7 +210,14 @@ export const ImportPage = () => {
         }}
       >
         上記内容で登録
-      </button>
-    </>
+      </TextButton>
+      <TextButton
+        onClick={() => {
+          setData([]);
+        }}
+      >
+        内容を破棄
+      </TextButton>
+    </div>
   );
 };

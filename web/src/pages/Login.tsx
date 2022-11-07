@@ -1,6 +1,7 @@
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../api/firebase";
+import { TextButton } from "../components/Button";
 
 const provider = new GoogleAuthProvider();
 
@@ -9,9 +10,7 @@ export const LoginPage = () => {
 
   return (
     <div>
-      <Link to="/">INDEX</Link>
-
-      <button
+      <TextButton
         onClick={async () => {
           const result = await signInWithPopup(auth, provider);
           const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -27,7 +26,7 @@ export const LoginPage = () => {
         }}
       >
         Sign In With Google
-      </button>
+      </TextButton>
     </div>
   );
 };
