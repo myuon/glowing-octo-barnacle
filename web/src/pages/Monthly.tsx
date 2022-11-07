@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import { theme } from "../components/theme";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { assertIsDefined } from "../helper/assert";
 import { SquareIcon } from "../components/Icon";
 import { useYearMonth } from "../helper/yearMonth";
@@ -11,6 +11,7 @@ import { formatNumber } from "../helper/number";
 import { Paper } from "../components/Paper";
 import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
+import { List } from "../components/List";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -165,32 +166,26 @@ export const MonthlyPage = () => {
         </Paper>
       ) : null}
 
-      <div
-        css={css`
-          display: grid;
-
-          & > *:not(:last-of-type) {
-            border-bottom: 1px solid ${theme.palette.gray[100]};
-          }
-          & > * {
-            padding-bottom: 16px;
-            margin-bottom: 16px;
-          }
-        `}
-      >
+      <List>
         {search?.map((item) => {
           const children = childrenByParentKey?.[item.uniqueKey];
 
           return (
-            <div
+            <Link
+              to={`/item/${item.uniqueKey}`}
               key={item.uniqueKey}
-              css={css`
-                display: grid;
-                grid-template-columns: auto 1fr auto;
-                gap: 12px;
-                align-items: center;
-                justify-content: space-between;
-              `}
+              css={[
+                css`
+                  display: grid;
+                  grid-template-columns: auto 1fr auto;
+                  gap: 12px;
+                  align-items: center;
+                  justify-content: space-between;
+                `,
+                css`
+                  color: inherit;
+                `,
+              ]}
             >
               <SquareIcon
                 color={item.type === "income" ? "income" : "expense"}
@@ -261,10 +256,10 @@ export const MonthlyPage = () => {
                   {dayjs(item.transactionDate).format("M/D")}
                 </small>
               </div>
-            </div>
+            </Link>
           );
         })}
-      </div>
+      </List>
     </section>
   );
 };

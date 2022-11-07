@@ -6,6 +6,7 @@ import { IndexLayout } from "./layouts/Index";
 import { MonthlyPage } from "./pages/Monthly";
 import { css, Global } from "@emotion/react";
 import { theme } from "./components/theme";
+import { ItemPage } from "./pages/Item";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: "/monthly/:ym",
         element: <MonthlyPage />,
+      },
+      {
+        path: "/item/:uniqueKey",
+        element: <ItemPage />,
       },
       {
         path: "/login",
