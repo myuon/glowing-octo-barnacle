@@ -23,6 +23,7 @@ export const transactionStatementEventSaveAll = async (
         amount: z.number(),
         description: z.string(),
         transactionDate: z.string(),
+        parentKey: z.string().optional(),
       })
     )
   );
@@ -43,14 +44,26 @@ export const transactionStatementEventSearch = async (
   app: App,
   ctx: Context
 ) => {
-  const input = ctx.request.body as {
+  const inputSchema = schemaForType<{
     transactionDateSpan: { start: string; end: string };
-  };
+  }>()(
+    z.object({
+      transactionDateSpan: z.object({
+        start: z.string(),
+        end: z.string(),
+      }),
+    })
+  );
+  const input = inputSchema.safeParse(ctx.request.body);
+  if (!input.success) {
+    ctx.throw(400, "Bad Request", input.error);
+  }
+
   const result = await app.transactionStatementEventRepository.findMany({
     where: {
       transactionDate: Between(
-        input.transactionDateSpan.start,
-        input.transactionDateSpan.end
+        input.data.transactionDateSpan.start,
+        input.data.transactionDateSpan.end
       ),
     },
   });

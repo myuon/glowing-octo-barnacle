@@ -41,7 +41,7 @@ export class TransactionStatementEventTable {
   @Column()
   createdAt: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: "varchar" })
   parentKey: string | null;
 
   static fromTransactionStatementEvent(
