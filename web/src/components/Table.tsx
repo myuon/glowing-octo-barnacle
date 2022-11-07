@@ -18,7 +18,8 @@ export const Table = ({
           word-break: break-all;
         }
 
-        tr:nth-of-type(odd) {
+        thead tr,
+        tbody tr:nth-of-type(even) {
           background-color: ${theme.palette.gray[100]};
         }
       `}

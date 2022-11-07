@@ -105,7 +105,6 @@ const addUniqueKeys = (rows: ImportedTransaction[]) => {
     const uniqueKeyCandidate = SHA256(JSON.stringify(row));
     if (!dateKey[row.transactionDate].has(uniqueKeyCandidate)) {
       dateKey[row.transactionDate].add(uniqueKeyCandidate);
-      console.log(row.transactionDate, uniqueKeyCandidate, row);
 
       return {
         ...row,
@@ -118,7 +117,6 @@ const addUniqueKeys = (rows: ImportedTransaction[]) => {
     );
     if (!dateKey[row.transactionDate].has(key)) {
       dateKey[row.transactionDate].add(key);
-      console.log(row.transactionDate, key, row);
 
       return {
         ...row,
@@ -145,7 +143,9 @@ export const ImportPage = () => {
     []
   );
 
-  const amount = inputs.map((i) => i.amount).reduce((a, b) => a + b, 0);
+  const expenseAmount = inputs
+    .map((i) => (i.type === "income" ? -i.amount : i.amount))
+    .reduce((a, b) => a + b, 0);
   const { data: parentCandidates } = useTransactionStatementEvent(
     inputs.length > 0
       ? {
@@ -154,13 +154,12 @@ export const ImportPage = () => {
             end: "2099-12-31",
           },
           amountSpan: {
-            min: amount,
-            max: amount,
+            min: expenseAmount,
+            max: expenseAmount,
           },
         }
       : undefined
   );
-  console.log(parentCandidates);
 
   return (
     <>
@@ -225,6 +224,17 @@ export const ImportPage = () => {
           />
         ) : null}
 
+        {parentCandidates && parentCandidates.length > 0 ? (
+          <>
+            <p>対応する項目が見つかりました</p>
+
+            <Table
+              header={Object.keys(parentCandidates[0])}
+              data={parentCandidates.map((t) => ({ ...t }))}
+            />
+          </>
+        ) : null}
+
         <TextButton
           disabled={data.length === 0}
           onClick={async () => {
@@ -239,15 +249,19 @@ export const ImportPage = () => {
         <TextButton
           disabled={data.length === 0}
           onClick={async () => {
-            const records = data
-              .map((row) => guessRecordFromHeader(header, row))
-              .filter((t): t is ImportedTransaction => Boolean(t));
-            const input = addUniqueKeys(records);
-            console.log(input);
+            const parentKey = parentCandidates?.[0]?.uniqueKey;
+            if (!parentKey) {
+              return;
+            }
 
             const resp = await fetch("/api/transactionStatementEvents", {
               method: "POST",
-              body: JSON.stringify(input),
+              body: JSON.stringify(
+                inputs.map((i) => ({
+                  ...i,
+                  parentKey,
+                }))
+              ),
               headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${await getAuthToken()}`,
@@ -257,6 +271,7 @@ export const ImportPage = () => {
 
             if (resp.ok) {
               setData([]);
+              setInputs([]);
             }
           }}
         >
