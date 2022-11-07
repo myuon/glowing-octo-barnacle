@@ -25,4 +25,4 @@ fi
 
 # メインプロセスに、litestreamによるレプリケーション、
 # サブプロセスに Next.js アプリケーションを走らせる
-exec litestream replicate -exec "node dist/server/index.js" -config /etc/litestream.yml
+exec litestream replicate -exec "/nodejs/bin/node dist/server/index.js" -config /etc/litestream.yml
