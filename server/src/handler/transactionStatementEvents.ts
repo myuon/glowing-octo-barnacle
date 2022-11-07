@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Between } from "typeorm";
+import { Between, IsNull } from "typeorm";
 import { z } from "zod";
 import { schemaForType } from "../helper/zod";
 import { TransactionStatementEvent } from "../../../model/transactionStatementEvent";
@@ -46,12 +46,16 @@ export const transactionStatementEventSearch = async (
 ) => {
   const inputSchema = schemaForType<{
     transactionDateSpan: { start: string; end: string };
+    parentKey?: string;
+    onlyNullParentKey?: boolean;
   }>()(
     z.object({
       transactionDateSpan: z.object({
         start: z.string(),
         end: z.string(),
       }),
+      parentKey: z.string().optional(),
+      onlyNullParentKey: z.boolean().optional(),
     })
   );
   const input = inputSchema.safeParse(ctx.request.body);
@@ -65,6 +69,7 @@ export const transactionStatementEventSearch = async (
         input.data.transactionDateSpan.start,
         input.data.transactionDateSpan.end
       ),
+      parentKey: input.data.onlyNullParentKey ? IsNull() : input.data.parentKey,
     },
   });
   ctx.body = result;
