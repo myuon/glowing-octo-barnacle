@@ -59,9 +59,8 @@ export const transactionStatementEventSearch = async (
           max: z.number(),
         })
         .optional(),
-      parentKey: z.string().optional(),
+      parentKeys: z.array(z.string()).optional(),
       onlyNullParentKey: z.boolean().optional(),
-      uniqueKeys: z.array(z.string()).optional(),
     })
   );
   const input = inputSchema.safeParse(ctx.request.body);
@@ -77,11 +76,14 @@ export const transactionStatementEventSearch = async (
             input.data.transactionDateSpan.end
           )
         : undefined,
-      parentKey: input.data.onlyNullParentKey ? IsNull() : input.data.parentKey,
+      parentKey: input.data.onlyNullParentKey
+        ? IsNull()
+        : input.data.parentKeys
+        ? In(input.data.parentKeys)
+        : undefined,
       amount: input.data.amountSpan
         ? Between(input.data.amountSpan.min, input.data.amountSpan.max)
         : undefined,
-      uniqueKey: input.data.uniqueKeys ? In(input.data.uniqueKeys) : undefined,
     },
   });
   ctx.body = result;

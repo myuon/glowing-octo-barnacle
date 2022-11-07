@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "postformat": "prettier --write ."
+    "postformat": "prettier --write .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",

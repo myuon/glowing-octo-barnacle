@@ -34,7 +34,7 @@ export const MonthlyPage = () => {
   const { data: children } = useTransactionStatementEvent(
     search
       ? {
-          uniqueKeys: search?.map((s) => s.uniqueKey),
+          parentKeys: search?.map((s) => s.uniqueKey),
         }
       : undefined
   );
