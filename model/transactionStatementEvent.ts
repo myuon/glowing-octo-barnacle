@@ -10,4 +10,5 @@ export interface TransactionStatementEvent {
   description: string;
   transactionDate: string;
   createdAt: number;
+  parentKey?: string;
 }

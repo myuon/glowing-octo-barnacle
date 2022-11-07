@@ -35,11 +35,14 @@ export class TransactionStatementEventTable {
   @Column()
   description: string;
 
-  @Column({ nullable: true })
+  @Column()
   transactionDate: string;
 
   @Column()
   createdAt: number;
+
+  @Column({ nullable: true })
+  parentKey: string | null;
 
   static fromTransactionStatementEvent(
     model: TransactionStatementEvent
@@ -54,6 +57,7 @@ export class TransactionStatementEventTable {
     record.description = model.description;
     record.transactionDate = model.transactionDate;
     record.createdAt = model.createdAt;
+    record.parentKey = model.parentKey ?? null;
 
     return record;
   }
@@ -69,6 +73,7 @@ export class TransactionStatementEventTable {
       description: this.description,
       createdAt: this.createdAt,
       transactionDate: this.transactionDate,
+      parentKey: this.parentKey ?? undefined,
     };
   }
 }
