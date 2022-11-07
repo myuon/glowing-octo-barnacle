@@ -1,7 +1,4 @@
 import { css } from "@emotion/react";
-import { getAuthToken } from "../components/auth";
-import useSWR from "swr";
-import { TransactionStatementEvent } from "../../../shared/transactionStatementEvent";
 import { theme } from "../components/theme";
 import { useNavigate, useParams } from "react-router-dom";
 import { assertIsDefined } from "../helper/assert";
@@ -12,6 +9,7 @@ import { TextButton } from "../components/Button";
 import { useEffect, useMemo } from "react";
 import { formatNumber } from "../helper/number";
 import { Paper } from "../components/Paper";
+import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -26,30 +24,13 @@ export const MonthlyPage = () => {
     }
   }, [navigate, startDate, ym]);
 
-  const { data: search } = useSWR<TransactionStatementEvent[]>(
-    ["/api/transactionStatementEvents/search", startDate],
-    async (url: string) => {
-      const token = await getAuthToken();
-      if (!token) {
-        throw new Error("not authenticated");
-      }
-
-      const resp = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({
-          transactionDateSpan: {
-            start: startDate.startOf("month").format("YYYY-MM-DD"),
-            end: startDate.endOf("month").format("YYYY-MM-DD"),
-          },
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return resp.json();
-    }
-  );
+  const { data: search } = useTransactionStatementEvent({
+    transactionDateSpan: {
+      start: startDate.startOf("month").format("YYYY-MM-DD"),
+      end: startDate.endOf("month").format("YYYY-MM-DD"),
+    },
+    onlyNullParentKey: true,
+  });
   const summary = useMemo(() => {
     if (!search) {
       return undefined;

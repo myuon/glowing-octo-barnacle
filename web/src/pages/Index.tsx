@@ -1,7 +1,4 @@
 import { css } from "@emotion/react";
-import { getAuthToken } from "../components/auth";
-import useSWR from "swr";
-import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
 import { theme } from "../components/theme";
 import dayjs from "dayjs";
 import { SquareIcon } from "../components/Icon";
@@ -17,33 +14,16 @@ import {
 } from "recharts";
 import { Link } from "react-router-dom";
 import { formatShortenedNumber } from "../helper/number";
+import { useTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 
 export const IndexPage = () => {
-  const { data: search } = useSWR<TransactionStatementEvent[]>(
-    ["/api/transactionStatementEvents/search", 2022],
-    async (url: string) => {
-      const token = await getAuthToken();
-      if (!token) {
-        throw new Error("not authenticated");
-      }
-
-      const resp = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify({
-          transactionDateSpan: {
-            start: dayjs(`20220101`).startOf("month").format("YYYY-MM-DD"),
-            end: dayjs(`20221231`).endOf("month").format("YYYY-MM-DD"),
-          },
-          onlyNullParentKey: true,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return resp.json();
-    }
-  );
+  const { data: search } = useTransactionStatementEvent({
+    transactionDateSpan: {
+      start: dayjs(`20220101`).startOf("month").format("YYYY-MM-DD"),
+      end: dayjs(`20221231`).endOf("month").format("YYYY-MM-DD"),
+    },
+    onlyNullParentKey: true,
+  });
   const monthlyData = useMemo(() => {
     const typeMap =
       search?.reduce((acc, cur) => {
