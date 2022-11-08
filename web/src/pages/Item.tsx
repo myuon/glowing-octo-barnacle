@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import dayjs from "dayjs";
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   CartesianGrid,
   Legend,
@@ -16,6 +16,7 @@ import {
   useSearchTransactionStatementEvent,
   useTransactionStatementEvent,
 } from "../api/useTransactionStatementEvent";
+import { TextButton } from "../components/Button";
 import { SquareIcon } from "../components/Icon";
 import { List } from "../components/List";
 import { theme } from "../components/theme";
@@ -64,6 +65,7 @@ export const ItemPage = () => {
       ),
     [shift]
   );
+  const navigate = useNavigate();
 
   return (
     <div
@@ -72,7 +74,20 @@ export const ItemPage = () => {
         gap: 24px;
       `}
     >
-      <p>STATEMENT</p>
+      <div
+        css={css`
+          display: flex;
+          gap: 8px;
+        `}
+      >
+        <TextButton
+          iconName="bi-arrow-left"
+          onClick={() => {
+            navigate(-1);
+          }}
+        />
+        <p>STATEMENT</p>
+      </div>
 
       {item ? <TransactionStatementEventItem item={item} /> : null}
 
