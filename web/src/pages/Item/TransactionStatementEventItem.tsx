@@ -80,7 +80,6 @@ export const TransactionStatementEventItem = ({
             line-height: 1;
           `}
         >
-          {item.type === "income" ? "+" : "-"}{" "}
           {formatNumber(item.amount, { currency: true })}
         </span>
         <small

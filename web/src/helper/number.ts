@@ -14,20 +14,25 @@ export const formatNumber = (
   }).format(value);
 };
 
-export const formatShortenedNumber = (value: number) => {
+export const formatShortenedNumber = (
+  value: number,
+  options?: { digits?: number }
+) => {
   if (value < 1000) {
-    return value;
+    return `${value}`;
   }
+
+  const digits = options?.digits ?? 2;
 
   if (value < 1000000) {
     return `${formatNumber(value / 1000, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
     })}K`;
   }
 
   return `${formatNumber(value / 1000000, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   })}M`;
 };

@@ -61,6 +61,7 @@ export const transactionStatementEventSearch = async (
         .optional(),
       parentKeys: z.array(z.string()).optional(),
       onlyNullParentKey: z.boolean().optional(),
+      title: z.string().optional(),
     })
   );
   const input = inputSchema.safeParse(ctx.request.body);
@@ -84,6 +85,7 @@ export const transactionStatementEventSearch = async (
       amount: input.data.amountSpan
         ? Between(input.data.amountSpan.min, input.data.amountSpan.max)
         : undefined,
+      title: input.data.title,
     },
   });
   ctx.body = result;
