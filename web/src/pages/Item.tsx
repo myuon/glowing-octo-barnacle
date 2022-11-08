@@ -16,10 +16,11 @@ import {
   useSearchTransactionStatementEvent,
   useTransactionStatementEvent,
 } from "../api/useTransactionStatementEvent";
+import { SquareIcon } from "../components/Icon";
 import { List } from "../components/List";
 import { theme } from "../components/theme";
 import { assertIsDefined } from "../helper/assert";
-import { formatShortenedNumber } from "../helper/number";
+import { formatNumber, formatShortenedNumber } from "../helper/number";
 import { TransactionStatementEventItem } from "./Item/TransactionStatementEventItem";
 
 export const ItemPage = () => {
@@ -107,6 +108,58 @@ export const ItemPage = () => {
           />
         </LineChart>
       </ResponsiveContainer>
+
+      <p>DETAILS</p>
+
+      <List>
+        {shift?.map((item) => (
+          <div
+            key={item.uniqueKey}
+            css={css`
+              display: grid;
+              grid-template-columns: auto 1fr auto auto;
+              gap: 16px;
+              align-items: center;
+              justify-content: space-between;
+              color: inherit;
+            `}
+          >
+            <SquareIcon iconName={"bi-cash"} color="expense" />
+            <div
+              css={css`
+                display: grid;
+                gap: 6px;
+              `}
+            >
+              <div
+                css={css`
+                  font-size: 16px;
+                  font-weight: 600;
+                  line-height: 1;
+                `}
+              >
+                {dayjs(item.transactionDate).format("YYYY/MM/DD")}
+              </div>
+            </div>
+            <div
+              css={css`
+                display: grid;
+                gap: 6px;
+              `}
+            >
+              <div
+                css={css`
+                  font-size: 16px;
+                  font-weight: 600;
+                  line-height: 1;
+                `}
+              >
+                {formatNumber(item.amount, { currency: true })}
+              </div>
+            </div>
+          </div>
+        ))}
+      </List>
 
       <p>CHILDREN</p>
 
