@@ -39,32 +39,36 @@ export const ItemPage = () => {
         }
       : undefined
   );
-  const shiftByMonth = useMemo(
-    () =>
-      shift?.reduce(
-        (acc, cur) => {
-          const transactionDate = dayjs(cur.transactionDate);
-          const month = transactionDate.format("YYYY-MM");
-          if (!acc[month]) {
-            acc[month] = {
-              transactionDate,
-              amount: 0,
-            };
-          }
+  const shiftByMonth = useMemo(() => {
+    const obj = shift?.reduce(
+      (acc, cur) => {
+        const transactionDate = dayjs(cur.transactionDate);
+        const month = transactionDate.format("YYYY-MM");
+        if (!acc[month]) {
+          acc[month] = {
+            transactionDate,
+            amount: 0,
+          };
+        }
 
-          acc[month].amount += cur.amount;
-          return acc;
-        },
-        {} as Record<
-          string,
-          {
-            transactionDate: dayjs.Dayjs;
-            amount: number;
-          }
-        >
-      ),
-    [shift]
-  );
+        acc[month].amount += cur.amount;
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          transactionDate: dayjs.Dayjs;
+          amount: number;
+        }
+      >
+    );
+
+    return obj
+      ? Object.values(obj).sort((a, b) =>
+          a.transactionDate > b.transactionDate ? 1 : -1
+        )
+      : undefined;
+  }, [shift]);
   const navigate = useNavigate();
 
   return (
@@ -97,7 +101,7 @@ export const ItemPage = () => {
         <LineChart
           width={500}
           height={300}
-          data={shiftByMonth ? Object.values(shiftByMonth) : []}
+          data={shiftByMonth}
           margin={{
             top: 5,
             right: 5,
