@@ -19,6 +19,7 @@ import {
 import { TextButton } from "../components/Button";
 import { SquareIcon } from "../components/Icon";
 import { List } from "../components/List";
+import { Paper } from "../components/Paper";
 import { theme } from "../components/theme";
 import { assertIsDefined } from "../helper/assert";
 import { formatNumber, formatShortenedNumber } from "../helper/number";
@@ -95,38 +96,46 @@ export const ItemPage = () => {
 
       {item ? <TransactionStatementEventItem item={item} /> : null}
 
-      <p>CHANGES</p>
+      <Paper
+        css={css`
+          display: grid;
+          gap: 24px;
+          margin: 0 12px;
+        `}
+      >
+        <p>CHANGES</p>
 
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart
-          width={500}
-          height={300}
-          data={shiftByMonth}
-          margin={{
-            top: 5,
-            right: 5,
-            left: 0,
-            bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey={(entry) => dayjs(entry.transactionDate).format("MMM")}
-          />
-          <YAxis
-            tickFormatter={(value) =>
-              formatShortenedNumber(value, { digits: 1 })
-            }
-          />
-          <Tooltip />
-          <Legend />
-          <Line
-            dataKey="amount"
-            stroke={theme.palette.primary.main}
-            activeDot={{ r: 8 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            width={500}
+            height={300}
+            data={shiftByMonth}
+            margin={{
+              top: 10,
+              right: 20,
+              left: 10,
+              bottom: 10,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey={(entry) => dayjs(entry.transactionDate).format("MMM")}
+            />
+            <YAxis
+              tickFormatter={(value) =>
+                formatShortenedNumber(value, { digits: 1 })
+              }
+            />
+            <Tooltip />
+            <Legend />
+            <Line
+              dataKey="amount"
+              stroke={theme.palette.primary.main}
+              activeDot={{ r: 8 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </Paper>
 
       <p>DETAILS</p>
 
