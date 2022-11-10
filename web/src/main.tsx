@@ -12,8 +12,13 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   </React.StrictMode>
 );
 
-registerSW({
+const updateSW = registerSW({
   onNeedRefresh() {
+    const ok = window.confirm("New content is available; please refresh.");
+    if (ok) {
+      updateSW();
+    }
+
     return;
   },
   onOfflineReady() {
