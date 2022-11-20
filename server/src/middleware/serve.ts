@@ -1,12 +1,6 @@
-import { Middleware } from "koa";
+import { Middleware, Next } from "koa";
 import serve from "koa-static";
 import path from "path";
-
-const fallbackNext =
-  (root: string): Middleware =>
-  async (ctx, next) => {
-    return serve(path.resolve(root, "index.html"))(ctx, next);
-  };
 
 export const serveStatic =
   (options: {
@@ -21,9 +15,13 @@ export const serveStatic =
         : false) &&
       process.env.NODE_ENV === "production"
     ) {
+      const fallbackNext: Next = async () => {
+        return serve(path.resolve(options.path, "index.html"))(ctx, next);
+      };
+
       return serve(options.path, {
         defer: true,
-      })(ctx, fallbackNext ? fallbackNext(options.path)(ctx, next) : next);
+      })(ctx, options.fallbackForSpa ? fallbackNext : next);
     } else {
       return next();
     }
