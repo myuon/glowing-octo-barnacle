@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import dayjs from "dayjs";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   CartesianGrid,
@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
 import {
   useSearchTransactionStatementEvent,
   useTransactionStatementEvent,
@@ -71,6 +72,20 @@ export const ItemPage = () => {
       : undefined;
   }, [shift]);
   const navigate = useNavigate();
+
+  const [childrenMode, setChildrenMode] = useState<"byTitle" | "byDate">(
+    "byTitle"
+  );
+  const childrenByTitle = useMemo(() => {
+    return children?.reduce((acc, cur) => {
+      if (!acc[cur.title]) {
+        acc[cur.title] = [];
+      }
+
+      acc[cur.title].push(cur);
+      return acc;
+    }, {} as Record<string, TransactionStatementEvent[]>);
+  }, [children]);
 
   return (
     <div
@@ -189,20 +204,55 @@ export const ItemPage = () => {
         ))}
       </List>
 
-      <p>CHILDREN</p>
+      <div
+        css={css`
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+        `}
+      >
+        <p>CHILDREN</p>
+
+        <TextButton
+          underlined
+          onClick={() => {
+            setChildrenMode(childrenMode === "byTitle" ? "byDate" : "byTitle");
+          }}
+        >
+          {childrenMode === "byTitle" ? "By Date" : "By Title"}
+        </TextButton>
+      </div>
 
       <List>
-        {children?.map((c) => (
-          <Link
-            key={c.uniqueKey}
-            to={`/item/${c.uniqueKey}`}
-            css={css`
-              color: inherit;
-            `}
-          >
-            <TransactionStatementEventItem item={c} />
-          </Link>
-        ))}
+        {childrenMode === "byDate"
+          ? children?.map((c) => (
+              <Link
+                key={c.uniqueKey}
+                to={`/item/${c.uniqueKey}`}
+                css={css`
+                  color: inherit;
+                `}
+              >
+                <TransactionStatementEventItem item={c} />
+              </Link>
+            ))
+          : Object.entries(childrenByTitle ?? {}).map(([title, c]) => (
+              <Link
+                key={title}
+                to={`/item/${c[0].uniqueKey}`}
+                css={css`
+                  color: inherit;
+                `}
+              >
+                <TransactionStatementEventItem
+                  item={{
+                    ...c[0],
+                    amount: c.reduce((acc, cur) => acc + cur.amount, 0),
+                  }}
+                  captionText={`${c.length} items`}
+                />
+              </Link>
+            ))}
       </List>
     </div>
   );

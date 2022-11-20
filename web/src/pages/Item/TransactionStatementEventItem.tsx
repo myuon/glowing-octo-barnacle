@@ -8,8 +8,10 @@ import { formatNumber } from "../../helper/number";
 
 export const TransactionStatementEventItem = ({
   item,
+  captionText,
 }: {
   item: TransactionStatementEvent;
+  captionText?: string;
 }) => {
   return (
     <div
@@ -89,7 +91,7 @@ export const TransactionStatementEventItem = ({
             color: ${theme.palette.gray[400]};
           `}
         >
-          {dayjs(item.transactionDate).format("M/D")}
+          {captionText ?? dayjs(item.transactionDate).format("M/D")}
         </small>
       </div>
     </div>

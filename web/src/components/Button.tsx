@@ -1,12 +1,15 @@
 import { css } from "@emotion/react";
 import { ComponentPropsWithoutRef } from "react";
+import { theme } from "./theme";
 
 export interface TextButtonProps extends ComponentPropsWithoutRef<"button"> {
   iconName?: string;
+  underlined?: boolean;
 }
 
 export const TextButton = ({
   iconName,
+  underlined,
   children,
   ...props
 }: TextButtonProps) => {
@@ -20,7 +23,12 @@ export const TextButton = ({
         `,
         css`
           font-weight: 500;
+          color: ${theme.palette.gray[600]};
         `,
+        underlined &&
+          css`
+            text-decoration: underline;
+          `,
       ]}
       {...props}
     >
