@@ -168,12 +168,12 @@ export const ItemPage = () => {
         <p>DETAILS</p>
 
         <List>
-          {shift?.map((item) => (
+          {Object.values(shiftByMonth ?? {})?.map((item) => (
             <div
-              key={item.uniqueKey}
+              key={item.transactionDate.toString()}
               css={css`
                 display: grid;
-                grid-template-columns: auto 1fr auto auto;
+                grid-template-columns: auto 1fr auto;
                 gap: 16px;
                 align-items: center;
                 justify-content: space-between;
