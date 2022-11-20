@@ -275,7 +275,32 @@ export const ImportPage = () => {
             }
           }}
         >
-          上記内容で登録
+          上記内容で登録(カード)
+        </TextButton>
+        <TextButton
+          disabled={data.length === 0}
+          onClick={async () => {
+            const resp = await fetch("/api/transactionStatementEvents", {
+              method: "POST",
+              body: JSON.stringify(
+                inputs.map((i) => ({
+                  ...i,
+                }))
+              ),
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${await getAuthToken()}`,
+              },
+            });
+            console.log(await resp.text());
+
+            if (resp.ok) {
+              setData([]);
+              setInputs([]);
+            }
+          }}
+        >
+          上記内容で登録(銀行振込)
         </TextButton>
         <TextButton
           onClick={() => {
