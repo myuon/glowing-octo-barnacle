@@ -194,7 +194,7 @@ export const ItemPage = () => {
                     line-height: 1;
                   `}
                 >
-                  {dayjs(item.transactionDate).format("YYYY/MM/DD")}
+                  {dayjs(item.transactionDate).format("MMM 'YY")}
                 </div>
               </div>
               <div
