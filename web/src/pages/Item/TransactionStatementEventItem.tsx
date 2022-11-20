@@ -30,7 +30,9 @@ export const TransactionStatementEventItem = ({
             ? "bi-piggy-bank"
             : item.title === "カ－ド"
             ? "bi-credit-card"
-            : item.title === "水道"
+            : item.title === "水道" ||
+              item.title === "東京電力" ||
+              item.title === "東京ガス"
             ? "bi-house"
             : item.description.includes("ヤチン")
             ? "bi-house"
