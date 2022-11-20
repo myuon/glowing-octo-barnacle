@@ -6,12 +6,13 @@ import { SquareIcon } from "../components/Icon";
 import { useYearMonth } from "../helper/yearMonth";
 import dayjs from "dayjs";
 import { TextButton } from "../components/Button";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatNumber } from "../helper/number";
 import { Paper } from "../components/Paper";
 import { useSearchTransactionStatementEvent } from "../api/useTransactionStatementEvent";
 import { TransactionStatementEvent } from "../../../shared/model/transactionStatementEvent";
 import { List } from "../components/List";
+import { backgroundGrayStyle } from "../components/backgroundGray";
 
 export const MonthlyPage = () => {
   const { ym } = useParams<{ ym: string }>();
@@ -75,191 +76,204 @@ export const MonthlyPage = () => {
     };
   }, [search]);
 
+  const [height, setHeight] = useState<number>();
+
   return (
-    <section
-      css={css`
-        display: grid;
-        gap: 24px;
-      `}
-    >
-      <header
+    <>
+      <div css={backgroundGrayStyle(height)} />
+      <section
         css={css`
           display: grid;
-          grid-template-columns: auto 1fr auto;
-          align-items: center;
+          gap: 24px;
         `}
       >
-        <TextButton
-          iconName="bi-arrow-left"
-          onClick={() => {
-            prev();
-          }}
-        />
-        <div
+        <header
           css={css`
             display: grid;
-            justify-content: center;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
           `}
         >
-          <h2
-            css={css`
-              font-size: 20px;
-            `}
-          >
-            {startDate.format("MMM YYYY")}
-          </h2>
-        </div>
-        <TextButton
-          iconName="bi-arrow-right"
-          onClick={() => {
-            next();
-          }}
-        />
-      </header>
-
-      {summary ? (
-        <Paper
-          css={css`
-            margin-bottom: 16px;
-          `}
-        >
+          <TextButton
+            iconName="bi-arrow-left"
+            onClick={() => {
+              prev();
+            }}
+          />
           <div
             css={css`
               display: grid;
-              grid-template-columns: auto auto;
-              gap: 8px 24px;
               justify-content: center;
-              font-weight: 700;
             `}
           >
-            <span
+            <h2
               css={css`
-                color: ${theme.palette.signature.income.main};
+                font-size: 20px;
               `}
             >
-              INCOME
-            </span>
-            <span>
-              {formatNumber(summary.income, {
-                currency: true,
-              })}
-            </span>
-            <span
-              css={css`
-                color: ${theme.palette.signature.expense.main};
-              `}
-            >
-              EXPENSE
-            </span>
-            <span>
-              {formatNumber(summary.expense, {
-                currency: true,
-              })}
-            </span>
-            <span>BALANCE</span>
-            <span>
-              {formatNumber(summary.balance, {
-                currency: true,
-              })}
-            </span>
+              {startDate.format("MMM YYYY")}
+            </h2>
           </div>
-        </Paper>
-      ) : null}
+          <TextButton
+            iconName="bi-arrow-right"
+            onClick={() => {
+              next();
+            }}
+          />
+        </header>
 
-      <List>
-        {search?.map((item) => {
-          const children = childrenByParentKey?.[item.uniqueKey];
+        {summary ? (
+          <Paper
+            css={css`
+              margin-bottom: 16px;
+            `}
+            ref={(node) => {
+              if (!node) {
+                return;
+              }
 
-          return (
-            <Link
-              to={`/item/${item.uniqueKey}`}
-              key={item.uniqueKey}
-              css={[
-                css`
-                  display: grid;
-                  grid-template-columns: auto 1fr auto;
-                  gap: 12px;
-                  align-items: center;
-                  justify-content: space-between;
-                `,
-                css`
-                  color: inherit;
-                `,
-              ]}
+              const rect = node.getBoundingClientRect();
+              setHeight(rect.top + rect.height / 2);
+            }}
+          >
+            <div
+              css={css`
+                display: grid;
+                grid-template-columns: auto auto;
+                gap: 8px 24px;
+                justify-content: center;
+                font-weight: 700;
+              `}
             >
-              <SquareIcon
-                color={item.type === "income" ? "income" : "expense"}
-                iconName={
-                  item.type === "income"
-                    ? "bi-piggy-bank"
-                    : item.title === "カ－ド"
-                    ? "bi-credit-card"
-                    : item.title === "水道"
-                    ? "bi-house"
-                    : item.description.includes("ヤチン")
-                    ? "bi-house"
-                    : "bi-cash"
-                }
-              />
-              <div
+              <span
                 css={css`
-                  display: grid;
-                  gap: 6px;
+                  color: ${theme.palette.signature.income.main};
                 `}
               >
-                <span
-                  css={css`
-                    font-size: 16px;
-                    font-weight: 600;
-                    line-height: 1;
-                  `}
-                >
-                  {item.title}
-                  {children && children.length > 0
-                    ? ` (${children.length})`
-                    : null}
-                </span>
-                <small
-                  css={css`
-                    font-size: 12px;
-                    line-height: 1;
-                    color: ${theme.palette.gray[400]};
-                  `}
-                >
-                  {item.description}
-                </small>
-              </div>
-              <div
+                INCOME
+              </span>
+              <span>
+                {formatNumber(summary.income, {
+                  currency: true,
+                })}
+              </span>
+              <span
                 css={css`
-                  display: grid;
-                  gap: 6px;
-                  text-align: right;
+                  color: ${theme.palette.signature.expense.main};
                 `}
               >
-                <span
+                EXPENSE
+              </span>
+              <span>
+                {formatNumber(summary.expense, {
+                  currency: true,
+                })}
+              </span>
+              <span>BALANCE</span>
+              <span>
+                {formatNumber(summary.balance, {
+                  currency: true,
+                })}
+              </span>
+            </div>
+          </Paper>
+        ) : null}
+
+        <List>
+          {search?.map((item) => {
+            const children = childrenByParentKey?.[item.uniqueKey];
+
+            return (
+              <Link
+                to={`/item/${item.uniqueKey}`}
+                key={item.uniqueKey}
+                css={[
+                  css`
+                    display: grid;
+                    grid-template-columns: auto 1fr auto;
+                    gap: 12px;
+                    align-items: center;
+                    justify-content: space-between;
+                  `,
+                  css`
+                    color: inherit;
+                  `,
+                ]}
+              >
+                <SquareIcon
+                  color={item.type === "income" ? "income" : "expense"}
+                  iconName={
+                    item.type === "income"
+                      ? "bi-piggy-bank"
+                      : item.title === "カ－ド"
+                      ? "bi-credit-card"
+                      : item.title === "水道"
+                      ? "bi-house"
+                      : item.description.includes("ヤチン")
+                      ? "bi-house"
+                      : "bi-cash"
+                  }
+                />
+                <div
                   css={css`
-                    font-size: 16px;
-                    font-weight: 700;
-                    line-height: 1;
+                    display: grid;
+                    gap: 6px;
                   `}
                 >
-                  {item.type === "income" ? "+" : "-"}{" "}
-                  {formatNumber(item.amount, { currency: true })}
-                </span>
-                <small
+                  <span
+                    css={css`
+                      font-size: 16px;
+                      font-weight: 600;
+                      line-height: 1;
+                    `}
+                  >
+                    {item.title}
+                    {children && children.length > 0
+                      ? ` (${children.length})`
+                      : null}
+                  </span>
+                  <small
+                    css={css`
+                      font-size: 12px;
+                      line-height: 1;
+                      color: ${theme.palette.gray[400]};
+                    `}
+                  >
+                    {item.description}
+                  </small>
+                </div>
+                <div
                   css={css`
-                    font-size: 12px;
-                    line-height: 1;
-                    color: ${theme.palette.gray[400]};
+                    display: grid;
+                    gap: 6px;
+                    text-align: right;
                   `}
                 >
-                  {dayjs(item.transactionDate).format("M/D")}
-                </small>
-              </div>
-            </Link>
-          );
-        })}
-      </List>
-    </section>
+                  <span
+                    css={css`
+                      font-size: 16px;
+                      font-weight: 700;
+                      line-height: 1;
+                    `}
+                  >
+                    {item.type === "income" ? "+" : "-"}{" "}
+                    {formatNumber(item.amount, { currency: true })}
+                  </span>
+                  <small
+                    css={css`
+                      font-size: 12px;
+                      line-height: 1;
+                      color: ${theme.palette.gray[400]};
+                    `}
+                  >
+                    {dayjs(item.transactionDate).format("M/D")}
+                  </small>
+                </div>
+              </Link>
+            );
+          })}
+        </List>
+      </section>
+    </>
   );
 };

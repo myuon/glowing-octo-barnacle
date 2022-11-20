@@ -1,6 +1,6 @@
-import { css, Global } from "@emotion/react";
+import { css } from "@emotion/react";
 import dayjs from "dayjs";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   CartesianGrid,
@@ -17,6 +17,7 @@ import {
   useSearchTransactionStatementEvent,
   useTransactionStatementEvent,
 } from "../api/useTransactionStatementEvent";
+import { backgroundGrayStyle } from "../components/backgroundGray";
 import { TextButton } from "../components/Button";
 import { SquareIcon } from "../components/Icon";
 import { List } from "../components/List";
@@ -91,18 +92,7 @@ export const ItemPage = () => {
 
   return (
     <>
-      <div
-        css={css`
-          position: absolute;
-          top: 0px;
-          left: 0;
-          z-index: -1;
-          width: 100%;
-          height: ${height}px;
-          background-color: ${theme.palette.backgroundGray};
-          border-radius: 0 0 12px 12px;
-        `}
-      />
+      <div css={backgroundGrayStyle(height)} />
       <div
         css={css`
           display: grid;
@@ -137,9 +127,8 @@ export const ItemPage = () => {
               return;
             }
 
-            console.log(node.getBoundingClientRect());
-
-            setHeight(node.getBoundingClientRect().height);
+            const rect = node.getBoundingClientRect();
+            setHeight(rect.top + rect.height / 2);
           }}
         >
           <p>CHANGES</p>

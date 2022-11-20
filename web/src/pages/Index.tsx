@@ -2,7 +2,7 @@ import { css } from "@emotion/react";
 import { theme } from "../components/theme";
 import dayjs from "dayjs";
 import { SquareIcon } from "../components/Icon";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -15,6 +15,8 @@ import {
 import { Link } from "react-router-dom";
 import { formatShortenedNumber } from "../helper/number";
 import { useSearchTransactionStatementEvent } from "../api/useTransactionStatementEvent";
+import { Paper } from "../components/Paper";
+import { backgroundGrayStyle } from "../components/backgroundGray";
 
 export const IndexPage = () => {
   const { data: search } = useSearchTransactionStatementEvent({
@@ -52,132 +54,148 @@ export const IndexPage = () => {
     });
   }, [search]);
 
+  const [height, setHeight] = useState<number>();
+
   return (
-    <div
-      css={css`
-        display: grid;
-        gap: 32px;
-      `}
-    >
-      <h2>Overview</h2>
-
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart
-          width={700}
-          height={300}
-          data={monthlyData}
-          stackOffset="sign"
-          margin={{
-            top: 5,
-            right: 20,
-            left: 20,
-            bottom: 5,
-          }}
-          barSize={10}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={theme.palette.gray[200]}
-          />
-          <XAxis dataKey="name" />
-          <Tooltip />
-          <Legend iconType="circle" />
-          <Bar
-            dataKey="income"
-            fill={theme.palette.signature.income.main}
-            stackId="stack"
-          />
-          <Bar
-            dataKey="expense"
-            fill={theme.palette.signature.expense.main}
-            stackId="stack"
-          />
-        </BarChart>
-      </ResponsiveContainer>
-
+    <>
+      <div css={backgroundGrayStyle(height)} />
       <div
         css={css`
           display: grid;
-
-          & > *:not(:last-of-type) {
-            border-bottom: 1px solid ${theme.palette.gray[100]};
-          }
-          & > * {
-            padding: 16px 0;
-          }
+          gap: 32px;
         `}
       >
-        {monthlyData?.map((item) => (
-          <Link
-            to={`/monthly/${item.startDate.format("YYYYMM")}`}
-            key={item.name}
-            css={css`
-              display: grid;
-              grid-template-columns: auto 1fr auto auto;
-              gap: 16px;
-              align-items: center;
-              justify-content: space-between;
-              color: inherit;
-            `}
-          >
-            <SquareIcon iconName={"bi-cash"} />
-            <div
+        <h2>Overview</h2>
+
+        <Paper
+          ref={(node) => {
+            if (!node) {
+              return;
+            }
+
+            const rect = node.getBoundingClientRect();
+            setHeight(rect.top + rect.height / 2);
+          }}
+        >
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              width={700}
+              height={300}
+              data={monthlyData}
+              stackOffset="sign"
+              margin={{
+                top: 5,
+                right: 20,
+                left: 20,
+                bottom: 5,
+              }}
+              barSize={10}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={theme.palette.gray[200]}
+              />
+              <XAxis dataKey="name" />
+              <Tooltip />
+              <Legend iconType="circle" />
+              <Bar
+                dataKey="income"
+                fill={theme.palette.signature.income.main}
+                stackId="stack"
+              />
+              <Bar
+                dataKey="expense"
+                fill={theme.palette.signature.expense.main}
+                stackId="stack"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </Paper>
+
+        <div
+          css={css`
+            display: grid;
+
+            & > *:not(:last-of-type) {
+              border-bottom: 1px solid ${theme.palette.gray[100]};
+            }
+            & > * {
+              padding: 16px 0;
+            }
+          `}
+        >
+          {monthlyData?.map((item) => (
+            <Link
+              to={`/monthly/${item.startDate.format("YYYYMM")}`}
+              key={item.name}
               css={css`
                 display: grid;
-                gap: 6px;
+                grid-template-columns: auto 1fr auto auto;
+                gap: 16px;
+                align-items: center;
+                justify-content: space-between;
+                color: inherit;
               `}
             >
+              <SquareIcon iconName={"bi-cash"} />
               <div
                 css={css`
-                  font-size: 16px;
-                  font-weight: 600;
-                  line-height: 1;
+                  display: grid;
+                  gap: 6px;
                 `}
               >
-                {item.startDate.format("'YY MMM")}
+                <div
+                  css={css`
+                    font-size: 16px;
+                    font-weight: 600;
+                    line-height: 1;
+                  `}
+                >
+                  {item.startDate.format("'YY MMM")}
+                </div>
               </div>
-            </div>
-            <span
-              css={css`
-                display: flex;
-                gap: 4px;
-                font-weight: 700;
-                line-height: 1;
+              <span
+                css={css`
+                  display: flex;
+                  gap: 4px;
+                  font-weight: 700;
+                  line-height: 1;
 
-                ::before {
-                  display: block;
-                  width: 14px;
-                  height: 14px;
-                  content: "";
-                  background-color: ${theme.palette.signature.income.main};
-                  border-radius: 50%;
-                }
-              `}
-            >
-              ￥{formatShortenedNumber(item.income)}
-            </span>
-            <span
-              css={css`
-                display: flex;
-                gap: 4px;
-                font-weight: 700;
-                line-height: 1;
+                  ::before {
+                    display: block;
+                    width: 14px;
+                    height: 14px;
+                    content: "";
+                    background-color: ${theme.palette.signature.income.main};
+                    border-radius: 50%;
+                  }
+                `}
+              >
+                ￥{formatShortenedNumber(item.income)}
+              </span>
+              <span
+                css={css`
+                  display: flex;
+                  gap: 4px;
+                  font-weight: 700;
+                  line-height: 1;
 
-                ::before {
-                  display: block;
-                  width: 14px;
-                  height: 14px;
-                  content: "";
-                  background-color: ${theme.palette.signature.expense.main};
-                  border-radius: 50%;
-                }
-              `}
-            >
-              ￥{formatShortenedNumber(Math.abs(item.expense))}
-            </span>
-          </Link>
-        ))}
+                  ::before {
+                    display: block;
+                    width: 14px;
+                    height: 14px;
+                    content: "";
+                    background-color: ${theme.palette.signature.expense.main};
+                    border-radius: 50%;
+                  }
+                `}
+              >
+                ￥{formatShortenedNumber(Math.abs(item.expense))}
+              </span>
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
