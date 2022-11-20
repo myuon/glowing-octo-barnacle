@@ -27,6 +27,7 @@ export const theme = {
         main: "#fb923c",
       },
     },
+    backgroundGray: "#f1f5f9",
   },
   shadow: {
     xxl: "0 25px 50px -12px rgb(17 24 39 / 0.15)",

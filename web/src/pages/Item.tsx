@@ -1,6 +1,6 @@
-import { css } from "@emotion/react";
+import { css, Global } from "@emotion/react";
 import dayjs from "dayjs";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   CartesianGrid,
@@ -87,173 +87,200 @@ export const ItemPage = () => {
     }, {} as Record<string, TransactionStatementEvent[]>);
   }, [children]);
 
+  const [height, setHeight] = useState<number>();
+
   return (
-    <div
-      css={css`
-        display: grid;
-        gap: 24px;
-      `}
-    >
+    <>
       <div
         css={css`
-          display: flex;
-          gap: 8px;
+          position: absolute;
+          top: 0px;
+          left: 0;
+          z-index: -1;
+          width: 100%;
+          height: ${height}px;
+          background-color: ${theme.palette.backgroundGray};
+          border-radius: 0 0 12px 12px;
         `}
-      >
-        <TextButton
-          iconName="bi-arrow-left"
-          onClick={() => {
-            navigate(-1);
-          }}
-        />
-        <p>STATEMENT</p>
-      </div>
-
-      {item ? <TransactionStatementEventItem item={item} /> : null}
-
-      <Paper
+      />
+      <div
         css={css`
           display: grid;
           gap: 24px;
-          margin: 0 12px;
         `}
       >
-        <p>CHANGES</p>
-
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            width={500}
-            height={300}
-            data={shiftByMonth}
-            margin={{
-              top: 10,
-              right: 20,
-              left: 10,
-              bottom: 10,
+        <div
+          css={css`
+            display: flex;
+            gap: 8px;
+          `}
+        >
+          <TextButton
+            iconName="bi-arrow-left"
+            onClick={() => {
+              navigate(-1);
             }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey={(entry) => dayjs(entry.transactionDate).format("MMM")}
-            />
-            <YAxis
-              tickFormatter={(value) =>
-                formatShortenedNumber(value, { digits: 1 })
-              }
-            />
-            <Tooltip />
-            <Legend />
-            <Line
-              dataKey="amount"
-              stroke={theme.palette.primary.main}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </Paper>
+          />
+          <p>STATEMENT</p>
+        </div>
 
-      <p>DETAILS</p>
+        {item ? <TransactionStatementEventItem item={item} /> : null}
 
-      <List>
-        {shift?.map((item) => (
-          <div
-            key={item.uniqueKey}
-            css={css`
-              display: grid;
-              grid-template-columns: auto 1fr auto auto;
-              gap: 16px;
-              align-items: center;
-              justify-content: space-between;
-              color: inherit;
-            `}
-          >
-            <SquareIcon iconName={"bi-cash"} color="expense" />
-            <div
-              css={css`
-                display: grid;
-                gap: 6px;
-              `}
-            >
-              <div
-                css={css`
-                  font-size: 16px;
-                  font-weight: 600;
-                  line-height: 1;
-                `}
-              >
-                {dayjs(item.transactionDate).format("YYYY/MM/DD")}
-              </div>
-            </div>
-            <div
-              css={css`
-                display: grid;
-                gap: 6px;
-              `}
-            >
-              <div
-                css={css`
-                  font-size: 16px;
-                  font-weight: 600;
-                  line-height: 1;
-                `}
-              >
-                {formatNumber(item.amount, { currency: true })}
-              </div>
-            </div>
-          </div>
-        ))}
-      </List>
+        <Paper
+          css={css`
+            display: grid;
+            gap: 24px;
+            margin: 0 12px;
+          `}
+          ref={(node) => {
+            if (!node) {
+              return;
+            }
 
-      <div
-        css={css`
-          display: grid;
-          grid-template-columns: 1fr auto;
-          align-items: center;
-        `}
-      >
-        <p>CHILDREN</p>
+            console.log(node.getBoundingClientRect());
 
-        <TextButton
-          underlined
-          onClick={() => {
-            setChildrenMode(childrenMode === "byTitle" ? "byDate" : "byTitle");
+            setHeight(node.getBoundingClientRect().height);
           }}
         >
-          {childrenMode === "byTitle" ? "By Date" : "By Title"}
-        </TextButton>
-      </div>
+          <p>CHANGES</p>
 
-      <List>
-        {childrenMode === "byDate"
-          ? children?.map((c) => (
-              <Link
-                key={c.uniqueKey}
-                to={`/item/${c.uniqueKey}`}
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart
+              width={500}
+              height={300}
+              data={shiftByMonth}
+              margin={{
+                top: 10,
+                right: 20,
+                left: 10,
+                bottom: 10,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey={(entry) => dayjs(entry.transactionDate).format("MMM")}
+              />
+              <YAxis
+                tickFormatter={(value) =>
+                  formatShortenedNumber(value, { digits: 1 })
+                }
+              />
+              <Tooltip />
+              <Legend />
+              <Line
+                dataKey="amount"
+                stroke={theme.palette.primary.main}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </Paper>
+
+        <p>DETAILS</p>
+
+        <List>
+          {shift?.map((item) => (
+            <div
+              key={item.uniqueKey}
+              css={css`
+                display: grid;
+                grid-template-columns: auto 1fr auto auto;
+                gap: 16px;
+                align-items: center;
+                justify-content: space-between;
+                color: inherit;
+              `}
+            >
+              <SquareIcon iconName={"bi-cash"} color="expense" />
+              <div
                 css={css`
-                  color: inherit;
+                  display: grid;
+                  gap: 6px;
                 `}
               >
-                <TransactionStatementEventItem item={c} />
-              </Link>
-            ))
-          : Object.entries(childrenByTitle ?? {}).map(([title, c]) => (
-              <Link
-                key={title}
-                to={`/item/${c[0].uniqueKey}`}
+                <div
+                  css={css`
+                    font-size: 16px;
+                    font-weight: 600;
+                    line-height: 1;
+                  `}
+                >
+                  {dayjs(item.transactionDate).format("YYYY/MM/DD")}
+                </div>
+              </div>
+              <div
                 css={css`
-                  color: inherit;
+                  display: grid;
+                  gap: 6px;
                 `}
               >
-                <TransactionStatementEventItem
-                  item={{
-                    ...c[0],
-                    amount: c.reduce((acc, cur) => acc + cur.amount, 0),
-                  }}
-                  captionText={`${c.length} items`}
-                />
-              </Link>
-            ))}
-      </List>
-    </div>
+                <div
+                  css={css`
+                    font-size: 16px;
+                    font-weight: 600;
+                    line-height: 1;
+                  `}
+                >
+                  {formatNumber(item.amount, { currency: true })}
+                </div>
+              </div>
+            </div>
+          ))}
+        </List>
+
+        <div
+          css={css`
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+          `}
+        >
+          <p>CHILDREN</p>
+
+          <TextButton
+            underlined
+            onClick={() => {
+              setChildrenMode(
+                childrenMode === "byTitle" ? "byDate" : "byTitle"
+              );
+            }}
+          >
+            {childrenMode === "byTitle" ? "By Date" : "By Title"}
+          </TextButton>
+        </div>
+
+        <List>
+          {childrenMode === "byDate"
+            ? children?.map((c) => (
+                <Link
+                  key={c.uniqueKey}
+                  to={`/item/${c.uniqueKey}`}
+                  css={css`
+                    color: inherit;
+                  `}
+                >
+                  <TransactionStatementEventItem item={c} />
+                </Link>
+              ))
+            : Object.entries(childrenByTitle ?? {}).map(([title, c]) => (
+                <Link
+                  key={title}
+                  to={`/item/${c[0].uniqueKey}`}
+                  css={css`
+                    color: inherit;
+                  `}
+                >
+                  <TransactionStatementEventItem
+                    item={{
+                      ...c[0],
+                      amount: c.reduce((acc, cur) => acc + cur.amount, 0),
+                    }}
+                    captionText={`${c.length} items`}
+                  />
+                </Link>
+              ))}
+        </List>
+      </div>
+    </>
   );
 };
